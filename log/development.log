@@ -1,0 +1,14 @@
+Started GET "/" for 127.0.0.1 at 2017-07-11 22:48:04 -0700
+Processing by Rails::WelcomeController#index as HTML
+  Rendering /Users/maggielou/.rvm/gems/ruby-2.3.3/gems/railties-5.1.2/lib/rails/templates/rails/welcome/index.html.erb
+  Rendered /Users/maggielou/.rvm/gems/ruby-2.3.3/gems/railties-5.1.2/lib/rails/templates/rails/welcome/index.html.erb (4.1ms)
+Completed 200 OK in 159ms (Views: 9.9ms)
+
+
+Started GET "/" for 127.0.0.1 at 2017-07-11 22:49:45 -0700
+Processing by Rails::WelcomeController#index as HTML
+  Rendering /Users/maggielou/.rvm/gems/ruby-2.3.3/gems/railties-5.1.2/lib/rails/templates/rails/welcome/index.html.erb
+  Rendered /Users/maggielou/.rvm/gems/ruby-2.3.3/gems/railties-5.1.2/lib/rails/templates/rails/welcome/index.html.erb (4.3ms)
+Completed 200 OK in 162ms (Views: 10.0ms)
+
+

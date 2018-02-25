@@ -1,0 +1,40 @@
+body {
+    font-family: "Montserrat", serif;
+}
+
+#SpecificDates {
+    font-family: monospace;
+}
+
+.container {
+    border: 0;
+    display: flex;
+    flex-direction: row;
+}
+
+.pane {
+    margin:1em;
+    height: 100vh;
+    padding: 2em;
+}
+
+.info-pane {
+    width:30%;
+/*    position:fixed;*/
+    border: 1px solid black;
+    border-radius: 6px;
+    position: relative;
+    overflow-y: scroll;
+}
+
+.cal-pane {
+    width: 45%;
+    border-radius: 6px;
+    border: 1px solid black;
+    overflow-x: scroll;
+}
+/*
+
+#calendar {
+    height: 90vh;
+}*/
