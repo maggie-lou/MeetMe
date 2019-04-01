@@ -1,16 +1,10 @@
 var mongoose = require('../db');
-// var mongoose = require('mongoose');
 
 
 var Schema = mongoose.Schema;
 
-// const boardsSchema = new Schema({
-//   name: String,
-//   columns: [String],
-// });
-
 var groupSchema = new Schema({
-	title: String,
+	name: String,
 	startDate: Date,
 	endDate: Date,
 	link: String,

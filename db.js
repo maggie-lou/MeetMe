@@ -1,15 +1,10 @@
 var mongoose = require('mongoose');
-var Env = require('dotenv');
+var Env = require('dotenv').config();
 
-Env.load();
-
-// Initialize URI to default connection to local database
-const uri = process.env.MONGO_URI;
+// Initialize URI to value in .env
+var uri = process.env.MONGOLAB_URI;
 mongoose.connect(uri, function() {
-	console.log('mongodb is connected');
-  // Clear the database to wipe any previous testing changes
-  //    ***FOR TESTING PURPOSES ONLY**
-  mongoose.connection.db.dropDatabase();
+  console.log("Database connected.");
 });
 
 module.exports = mongoose;

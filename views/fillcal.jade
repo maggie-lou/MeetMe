@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  input#inputGroupName(type='text', placeholder='Group Name')
+  button#btnGetGroup Get Group
+  .container
+    .pane.cal-pane
+      #calendar-ind
+      button#authorize-button Authorize
+      button#signout-button Sign Out
+      button#test Test Button
+    .pane.cal-pane
+      #calendar-group
+
+  script(src='../public/js/fillcal.js')
+  script(src='https://apis.google.com/js/plus.js?onload=init')

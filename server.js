@@ -6,14 +6,11 @@ var mongoose = require('mongoose');
 var Env = require('dotenv');
 var fs = require('fs');
 
-var mongoDB = 'mongodb://localhost/db';
+// var mongoDB = 'mongodb://localhost/db';
+// // mongoose.connect(mongoDB);
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Database connection error:'));
 
-// Set Routes
-var GroupController = require('./controllers/GroupController');
-var UserController = require('./controllers/UserController');
-var Test = require('./controllers/Test');
 
 Env.load();
 var app = new express();
@@ -35,18 +32,19 @@ app.use(bodyParser.json());
 // for parsing application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Set Routes
+var GroupController = require('./controllers/GroupController');
+var UserController = require('./controllers/UserController');
+var CalController = require('./controllers/CalController');
+
 app.use('/groups', GroupController);
 app.use('/users', UserController);
-app.use('/test', Test);
+app.use('/cal', CalController);
 
 app.get('/', function(request, response) {
-  response.render('index.html');
+  response.render('populate_data');
 });
 
-
-app.get('/fillCal', function(request, response) {
-  response.render('fillCal.html');
-});
 
 app.listen(app.get('port'), function() {
   console.log('Express app listening on port ' + app.get('port'));

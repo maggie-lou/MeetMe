@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  .container
+    .pane.cal-pane
+      h1 What is the name of your event?
+      input#inputEventName(type='text', placeholder='Event Name')
+      h1 What are the dates of your event?
+      h1 What are viable times for the event? (Default: 9AM - 9PM)
+      button#create Create Event
+      br
+      br
+      br
+      button#test Test Button
+    .pane.cal-pane
+      #calendar
+
+  script(src='../public/js/creategroup.js')
