@@ -9,14 +9,16 @@ router.post('/', function(req, res) {
 		startDate: req.body.startDate,
 		endDate: req.body.endDate,
 		link: req.body.link,
-		calendar: req.body.calendar,
 	});
 
-	newGroup.save(function(err) {
-		if (err) res.status(500).json({ error: err });
-		else {
+	newGroup.save(function(err, saved) {
+		if (err) {
+      console.log(err);
+      res.send(err);
+      return;
+    } else {
 			console.log('Saved Group!');
-			res.status(200).json(newGroup);
+			res.send(newGroup);
 		}
 	});
 });
@@ -41,6 +43,7 @@ router.get('/create', function(req, res) {
 
 // Returns calendar of group with input name
 router.get('/name/:name', function(req, res) {
+  console.log("/GET group/name/" + req.params.name);
   Groups.findOne({ name: req.params.name }, function(err, group) {
     if(err) res.status(500).json({ error: err});
     if (group) {

@@ -5,11 +5,15 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var Env = require('dotenv');
 var fs = require('fs');
+var populateData = require('./helpers/populate_data');
 
-// var mongoDB = 'mongodb://localhost/db';
-// // mongoose.connect(mongoDB);
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Database connection error:'));
+//mongoose.set('debug', true);  // Prints out all database calls to console
+
+// Clear database and populate with test data
+//populateData.clearDB();
+//populateData.populateDatabase();
 
 
 Env.load();
@@ -36,16 +40,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 var GroupController = require('./controllers/GroupController');
 var UserController = require('./controllers/UserController');
 var CalController = require('./controllers/CalController');
+var GroupCalEventController = require('./controllers/GroupCalEventController');
 
 app.use('/groups', GroupController);
 app.use('/users', UserController);
 app.use('/cal', CalController);
-
-app.get('/', function(request, response) {
-  response.render('populate_data');
-});
-
+app.use('/groupcalevent', GroupCalEventController);
 
 app.listen(app.get('port'), function() {
   console.log('Express app listening on port ' + app.get('port'));
+});
+
+// Render calendar pages
+ app.get('/', function(req, res, next) {
+  res.render('fillcal', { title: 'Hello Test'});
 });

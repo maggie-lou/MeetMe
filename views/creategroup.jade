@@ -6,6 +6,10 @@ block content
       h1 What is the name of your event?
       input#inputEventName(type='text', placeholder='Event Name')
       h1 What are the dates of your event?
+      h3 Start Date
+      input(type = "text" class = "date-picker-1")
+      h3 End Date
+      input(type = "text" class = "date-picker-2")
       h1 What are viable times for the event? (Default: 9AM - 9PM)
       button#create Create Event
       br
@@ -15,4 +19,4 @@ block content
     .pane.cal-pane
       #calendar
 
-  script(src='../public/js/creategroup.js')
+  script(src='../public/js/bundle_creategroup.js')

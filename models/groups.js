@@ -1,6 +1,4 @@
 var mongoose = require('../db');
-
-
 var Schema = mongoose.Schema;
 
 var groupSchema = new Schema({
@@ -8,14 +6,7 @@ var groupSchema = new Schema({
 	startDate: Date,
 	endDate: Date,
 	link: String,
-	calendar: [
-		{
-			startTime: Date,
-			endTime: Date,
-			names: [String],
-		}
-	],
 });
 
-var Groups = mongoose.model('groups', groupSchema);
+var Groups = mongoose.model('Group', groupSchema);
 module.exports = Groups;

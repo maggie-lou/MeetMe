@@ -1,3 +1,5 @@
+var aaa = #{params.title};
+console.log(aaa);
 var groupCalEvents = [];
 var indCalEvents = [];
 var combinedCalEvents = [];

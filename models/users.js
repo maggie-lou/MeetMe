@@ -1,22 +1,11 @@
 var mongoose = require('../db');
-// var mongoose = require('mongoose');
-
-
 var Schema = mongoose.Schema;
-
 
 var userSchema = new Schema({
 	username: String,
 	password: String,
-	link: String,
-	calendar: [{
-		event: {
-			title: String,
-			startTime: Date,
-			endTime: Date,
-		}
-	}],
+  groupID: {type: Schema.Types.ObjectId, ref: 'Group'},
 });
 
-var Users = mongoose.model('users', userSchema);
+var Users = mongoose.model('User', userSchema);
 module.exports = Users;
