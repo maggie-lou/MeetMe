@@ -41,13 +41,13 @@ router.get('/create', function(req, res) {
 
 
 
-// Returns calendar of group with input name
-router.get('/name/:name', function(req, res) {
-  console.log("/GET group/name/" + req.params.name);
-  Groups.findOne({ name: req.params.name }, function(err, group) {
+// Returns group given group link
+router.get('/link/:link', function(req, res) {
+  console.log("/GET group/link/" + req.params.link);
+  Groups.findOne({ link: req.params.link }, function(err, group) {
     if(err) res.status(500).json({ error: err});
     if (group) {
-			res.status(200).json(group.calendar);
+			res.send(group);
     } else {
       res.status(400).json("No group in database with input name.");
     }

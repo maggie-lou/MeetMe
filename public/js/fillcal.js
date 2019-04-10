@@ -2,7 +2,6 @@ const Timeslot = require('./Timeslot.js');
 const moment = require('../../node_modules/moment');
 const fullCalendar = require('../../node_modules/fullcalendar');
 
-const groupLink = "";
 const groupID = "";
 
 var userID = "";
@@ -18,6 +17,8 @@ $(document).ready(function() {
   $('#btnRegister').on('click', registerUser);
   $('#btnSave').on('click', updateIndCal);
   $('#calendar-ind').on('mouseup', renderGroupCal);
+
+  var group = getGroup(groupLink); // groupLink defined in fillcal.jade script tag
 
   // Initialize Calendars
   var calInd = $('#calendar-ind').fullCalendar({
@@ -47,6 +48,30 @@ $(document).ready(function() {
   renderGroupCal();
 
 });
+
+function getGroup(groupLink) {
+  $.ajax({
+    type: 'GET',
+    url: 'groups/link/' + groupLink,
+    dataType: 'JSON',
+    error: function(xhr, ajaxOptions, thrownError) {
+      if (xhr.status == 400)
+        alert("No group with input link.");
+    },
+    success: function(group) {
+      console.log(group);
+      return group;
+    }
+    // success: function(groupCalEvents) {
+    //   parsedCal = parseGroupEvents(groupCalEvents);
+    //   // Save group cal to global variable
+    //   window.groupCalEvents = parsedCal;
+    //   renderGroupCal();
+    // }
+  }).done(function(resp) {
+  });
+
+}
 
 // Update the user's calendar in the database
 function updateIndCal() {
@@ -105,10 +130,6 @@ function inputEmpty(username) {
   return username == "";
 }
 
-function userExists(username, password) {
-
-}
-
 // Parse gCal events to FullCalendar events
 function parseGCal() {
   return gapi.client.calendar.events.list({
@@ -145,28 +166,6 @@ function parseGCal() {
     }
 
     return event_list;
-  });
-}
-
-// Get group events from db, based on group name from input form
-function getGroup(event) {
-  var groupName = $('#inputGroupName').val();
-  var parsedCal
-  $.ajax({
-    type: 'GET',
-    url: 'groups/name/' + groupName,
-    dataType: 'JSON',
-    error: function(xhr, ajaxOptions, thrownError) {
-      if (xhr.status == 400)
-        alert("No group with input name.");
-    },
-    success: function(groupCalEvents) {
-      parsedCal = parseGroupEvents(groupCalEvents);
-      // Save group cal to global variable
-      window.groupCalEvents = parsedCal;
-      renderGroupCal();
-    }
-  }).done(function(resp) {
   });
 }
 

@@ -52,6 +52,6 @@ app.listen(app.get('port'), function() {
 });
 
 // Render calendar pages
- app.get('/', function(req, res, next) {
-  res.render('fillcal', { title: 'Hello Test'});
+ app.get('/:groupLink', function(req, res, next) {
+  res.render('fillcal', { groupLink: req.params.groupLink});
 });
