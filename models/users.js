@@ -5,6 +5,7 @@ var userSchema = new Schema({
 	username: String,
 	password: String,
   groupID: {type: Schema.Types.ObjectId, ref: 'Group'},
+  calendar: String,
 });
 
 var Users = mongoose.model('User', userSchema);

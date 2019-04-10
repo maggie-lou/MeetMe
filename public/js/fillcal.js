@@ -1,5 +1,12 @@
-var aaa = #{params.title};
-console.log(aaa);
+const Timeslot = require('./Timeslot.js');
+const moment = require('../../node_modules/moment');
+const fullCalendar = require('../../node_modules/fullcalendar');
+
+const groupLink = "";
+const groupID = "";
+
+var userID = "";
+
 var groupCalEvents = [];
 var indCalEvents = [];
 var combinedCalEvents = [];
@@ -8,8 +15,8 @@ $(document).ready(function() {
   handleClientLoad()
 
   // Initialize click handlers
-  $('#btnGetGroup').on('click', getGroup);
-  $('#test').on('click', testFun);
+  $('#btnRegister').on('click', registerUser);
+  $('#btnSave').on('click', updateIndCal);
   $('#calendar-ind').on('mouseup', renderGroupCal);
 
   // Initialize Calendars
@@ -17,6 +24,7 @@ $(document).ready(function() {
     defaultView: 'agendaWeek',
     selectable: true,   // Users can highlight a timeslot by clicking and dragging
     unselectAuto: false, // Clicking elsewhere won't cause current selection to be cleared
+    displayEventTime : false,
 
     // Newly dragged events will persist
     select: function(start, end, allDay) {
@@ -36,11 +44,69 @@ $(document).ready(function() {
     defaultView: 'agendaWeek'
   })
 
+  renderGroupCal();
+
 });
 
+// Update the user's calendar in the database
+function updateIndCal() {
+  let calendar = serializeCalEvents();
 
-function testFun() {
-  console.log("In Test Function");
+  $.ajax({
+    type: 'PATCH',
+    url: '../users/' + window.userID + '/cal',
+    data:
+    {
+      calendar: JSON.stringify(calendar),
+    }
+  });
+}
+
+// Transform FullCalendar events into dictionary
+function serializeCalEvents() {
+  let dict = {}
+  indCalEvents.forEach(function(calEvent) {
+    // Split event into 30 minute timeslots
+    let currentTime = moment(calEvent.start);
+    while (currentTime.isBefore(moment(calEvent.end))) {
+      let timeslotStart = currentTime.format();
+      let timeslotEnd = currentTime.add(30, 'minutes').format();
+      let t = new Timeslot("", timeslotStart, timeslotEnd, ["Current"]);
+      dict[timeslotStart] = t;
+    }
+  });
+  return dict;
+}
+
+// Registers new user for the current group, based on input fields
+function registerUser() {
+  var name = document.getElementById('inputUsername').value;
+  var password = document.getElementById('inputPassword').value;
+
+  if (inputEmpty(name)) {
+    alert("Please enter your name.");
+  } else {
+    // Check if existing user
+    $.post(
+      '../users',
+      {
+        username: name,
+        password: password,
+        groupID: groupID,
+        calendar: "{}",
+      }, function(data, status) {
+        // Save newly created user ID to global variable
+        window.userID = data._id;
+      });
+  }
+}
+
+function inputEmpty(username) {
+  return username == "";
+}
+
+function userExists(username, password) {
+
 }
 
 // Parse gCal events to FullCalendar events
@@ -51,7 +117,7 @@ function parseGCal() {
     'showDeleted': false,
     'singleEvents': true,
     'orderBy': 'startTime',
-    //'maxResults': 30,
+    'maxResults': 50,
   }).then(function(response) {
     var events = response.result.items;
 
@@ -161,7 +227,7 @@ function renderGroupCal() {
 
 // Callback function for renderGroupCal
 function renderGroupCalHelper() {
-  window.indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
+  indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
   var combinedCal = groupCalEvents.concat(indCalEvents);
   $('#calendar-group').fullCalendar( 'removeEvents');
   $('#calendar-group').fullCalendar( 'renderEvents', combinedCal, true);
@@ -246,14 +312,3 @@ function renderGroupCalHelper() {
 	function handleSignoutClick(event) {
 	  gapi.auth2.getAuthInstance().signOut();
 	}
-
-
-
-
-
-
-
-
-
-
-

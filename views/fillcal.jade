@@ -1,16 +1,21 @@
 extends layout
 
 block content
-  input#inputGroupName(type='text', placeholder='Group Name')
-  button#btnGetGroup Get Group
+  h1 Register for this Event
+  input#inputUsername(type='text', placeholder='Name')
+  br
+  input#inputPassword(type='text', placeholder='Password (Optional)')
+  br
+  br
+  button#btnRegister Register
   .container
     .pane.cal-pane
       #calendar-ind
       button#authorize-button Authorize
       button#signout-button Sign Out
-      button#test Test Button
+      button#btnSave Save Calendar
     .pane.cal-pane
       #calendar-group
 
-  script(src='../public/js/fillcal.js')
   script(src='https://apis.google.com/js/plus.js?onload=init')
+  script(src='../public/js/bundle_fillcal.js')
