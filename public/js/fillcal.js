@@ -40,6 +40,12 @@ $(document).ready(function() {
         true
       );
     },
+
+    // Clicking on event will trigger event deletion prompt
+    eventClick: function(calEvent, jsEvent, view) {
+      $(this).css('border-color', 'red');
+      setTimeout(deleteEvent, 100, calEvent, this);
+    }
   })
 
   $('#calendar-group').fullCalendar({
@@ -48,6 +54,15 @@ $(document).ready(function() {
   })
 
 });
+
+
+function deleteEvent(event, cssObject) {
+  var confirmed = confirm("Do you want to delete this event?");
+  if (confirmed) {
+    $('#calendar-ind').fullCalendar('removeEvents', event._id);
+  }
+  $(cssObject).css('border-color', 'transparent');
+}
 
 function getGroup(groupLink, callback) {
   $.ajax({
