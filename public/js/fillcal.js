@@ -16,14 +16,15 @@ $(document).ready(function() {
   // Initialize click handlers
   $('#btnRegister').on('click', registerUser);
   $('#btnSave').on('click', updateIndCal);
-  $('#calendar-ind').on('mouseup', renderGroupCal);
+  $('#calendar-ind').on('click', renderGroupCal);
 
-  var group = getGroup(groupLink); // groupLink defined in fillcal.jade script tag
+  var group = getGroup(groupLink, deserializeCalEvents); // groupLink defined in fillcal.jade script tag
 
   // Initialize Calendars
   var calInd = $('#calendar-ind').fullCalendar({
     defaultView: 'agendaWeek',
     selectable: true,   // Users can highlight a timeslot by clicking and dragging
+    editable: true,
     unselectAuto: false, // Clicking elsewhere won't cause current selection to be cleared
     displayEventTime : false,
 
@@ -42,14 +43,13 @@ $(document).ready(function() {
   })
 
   $('#calendar-group').fullCalendar({
-    defaultView: 'agendaWeek'
+    defaultView: 'agendaWeek',
+    displayEventTime : false,
   })
-
-  renderGroupCal();
 
 });
 
-function getGroup(groupLink) {
+function getGroup(groupLink, callback) {
   $.ajax({
     type: 'GET',
     url: 'groups/link/' + groupLink,
@@ -59,18 +59,10 @@ function getGroup(groupLink) {
         alert("No group with input link.");
     },
     success: function(group) {
-      console.log(group);
+      callback(JSON.parse(group.calendar), renderGroupCal);
       return group;
     }
-    // success: function(groupCalEvents) {
-    //   parsedCal = parseGroupEvents(groupCalEvents);
-    //   // Save group cal to global variable
-    //   window.groupCalEvents = parsedCal;
-    //   renderGroupCal();
-    // }
-  }).done(function(resp) {
   });
-
 }
 
 // Update the user's calendar in the database
@@ -101,6 +93,29 @@ function serializeCalEvents() {
     }
   });
   return dict;
+}
+
+// Transform dictionary into array of FullCaelndar events
+function deserializeCalEvents(calDict, callback) {
+  let events = [];
+
+  for (var key in calDict) {
+    // Make Event Object
+    var timeslot = calDict[key];
+
+    var eventObj = {};
+    eventObj.title = timeslot.title;
+    eventObj.start = timeslot.startTime;
+    eventObj.endTime = timeslot.endTime;
+
+    events.push(eventObj);
+  }
+
+  // Save globally
+  groupCalEvents = events;
+
+  callback();
+  return events;
 }
 
 // Registers new user for the current group, based on input fields
@@ -196,31 +211,31 @@ function parseGroupEvents(events) {
 
 // Parse events from clientEvents function to fillcal events
 function parseClientEvents(events) {
-    var parsedCal = [];
+  var parsedCal = [];
 
-    for (i = 0; i < events.length; i++) {
-      // Make Event Object
-      var eventObj = {};
-      eventObj.title = '';
+  for (i = 0; i < events.length; i++) {
+    // Make Event Object
+    var eventObj = {};
+    eventObj.title = '';
 
-      if (events[i].allDay == true) {
-        eventObj.allDay = true;
-      } else {
-        eventObj.allDay = false;
-      }
-
-      eventObj.start = events[i].start._i;
-      eventObj.end = events[i].end._i;
-      parsedCal.push(eventObj);
+    if (events[i].allDay == true) {
+      eventObj.allDay = true;
+    } else {
+      eventObj.allDay = false;
     }
 
-    return parsedCal;
+    eventObj.start = events[i].start._i;
+    eventObj.end = events[i].end._i;
+    parsedCal.push(eventObj);
+  }
+
+  return parsedCal;
 
 }
 // Combine individual and group events and render on right calendar
 function renderGroupCal() {
-  // Ensures fullcal's click handlers run before custom click handlers, to add newly dragged events to the individual calendar before grabbing all the events to render on the group calendar
-  setTimeout(renderGroupCalHelper, 1);
+  // Want the newly created event to show up on the individual calendar, before parseClientEvents tries to grab it to display on group calendar
+  setTimeout(renderGroupCalHelper, 300);
 }
 
 
@@ -230,7 +245,6 @@ function renderGroupCalHelper() {
   var combinedCal = groupCalEvents.concat(indCalEvents);
   $('#calendar-group').fullCalendar( 'removeEvents');
   $('#calendar-group').fullCalendar( 'renderEvents', combinedCal, true);
-
 }
 
 
