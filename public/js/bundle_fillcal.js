@@ -30026,17 +30026,23 @@ const moment = require('../../node_modules/moment');
 const fullCalendar = require('../../node_modules/fullcalendar');
 
 const groupID = "";
-
 var userID = "";
+
+var unsavedChanges = false;
 
 var groupCalEvents = [];
 var indCalEvents = [];
 var combinedCalEvents = [];
+
+
 $(document).ready(function() {
   // Initialize click handlers
   $('#btnRegister').on('click', registerUser);
   $('#btnSave').on('click', updateIndCal);
   $('#calendar-ind').on('click', renderGroupCal);
+
+  // Warn user before leaving page
+  window.onbeforeunload = confirmExit;
 
   var group = getGroup(groupLink, initCalendars); // groupLink defined in fillcal.jade script tag
 });
@@ -30085,6 +30091,14 @@ function initCalendars(group) {
   initOauth(group.startDate, group.endDate);
 }
 
+function confirmExit() {
+  if (window.unsavedChanges) {
+    return "You have unsaved changes on your calendar. If you wish to save them, please select 'Save Calendar' at the left bottom of the page.";
+  } else {
+    return null; // Only alert user if unsaved changes
+  }
+}
+
 
 function deleteEvent(event, cssObject) {
   var confirmed = confirm("Do you want to delete this event?");
@@ -30120,6 +30134,9 @@ function updateIndCal() {
     data:
     {
       calendar: JSON.stringify(calendar),
+    },
+    success: function(response) {
+      window.unsavedChanges = false;
     }
   });
 }
@@ -30282,6 +30299,7 @@ function parseClientEvents(events) {
 }
 // Combine individual and group events and render on right calendar
 function renderGroupCal() {
+  window.unsavedChanges = true;
   // Want the newly created event to show up on the individual calendar, before parseClientEvents tries to grab it to display on group calendar
   setTimeout(renderGroupCalHelper, 300);
 }
