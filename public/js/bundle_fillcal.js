@@ -30033,23 +30033,25 @@ var groupCalEvents = [];
 var indCalEvents = [];
 var combinedCalEvents = [];
 $(document).ready(function() {
-  // Initialize OAuth
-  handleClientLoad()
-
   // Initialize click handlers
   $('#btnRegister').on('click', registerUser);
   $('#btnSave').on('click', updateIndCal);
   $('#calendar-ind').on('click', renderGroupCal);
 
-  var group = getGroup(groupLink, deserializeCalEvents); // groupLink defined in fillcal.jade script tag
+  var group = getGroup(groupLink, initCalendars); // groupLink defined in fillcal.jade script tag
+});
 
-  // Initialize Calendars
+function initCalendars(group) {
   var calInd = $('#calendar-ind').fullCalendar({
-    defaultView: 'agendaWeek',
+    defaultView: 'agenda',
     selectable: true,   // Users can highlight a timeslot by clicking and dragging
     editable: true,
     unselectAuto: false, // Clicking elsewhere won't cause current selection to be cleared
     displayEventTime : false,
+    visibleRange: {
+      start: moment(group.startDate).startOf("day"),
+      end: moment(group.endDate).add(1, 'days')
+    },
 
     // Newly dragged events will persist
     select: function(start, end, allDay) {
@@ -30072,11 +30074,16 @@ $(document).ready(function() {
   })
 
   $('#calendar-group').fullCalendar({
-    defaultView: 'agendaWeek',
+    defaultView: 'agenda',
     displayEventTime : false,
+    visibleRange: {
+      start: moment(group.startDate).startOf("day"),
+      end: moment(group.endDate).add(1, 'days')
+    },
   })
 
-});
+  initOauth(group.startDate, group.endDate);
+}
 
 
 function deleteEvent(event, cssObject) {
@@ -30097,7 +30104,7 @@ function getGroup(groupLink, callback) {
         alert("No group with input link.");
     },
     success: function(group) {
-      callback(JSON.parse(group.calendar), renderGroupCal);
+      callback(group);
       return group;
     }
   });
@@ -30184,10 +30191,11 @@ function inputEmpty(username) {
 }
 
 // Parse gCal events to FullCalendar events
-function parseGCal() {
+function parseGCal(startDate, endDate) {
   return gapi.client.calendar.events.list({
     'calendarId': 'primary',
-    'timeMin': (new Date()).toISOString(),
+    'timeMin': startDate,
+    'timeMax': endDate,
     'showDeleted': false,
     'singleEvents': true,
     'orderBy': 'startTime',
@@ -30217,6 +30225,8 @@ function parseGCal() {
         event_list.push(eventObj);
       }
     }
+
+    renderGroupCal();
 
     return event_list;
   });
@@ -30301,27 +30311,31 @@ function renderGroupCalHelper() {
 	var authorizeButton = document.getElementById('authorize-button');
 	var signoutButton = document.getElementById('signout-button');
 
-	function handleClientLoad() {
-	  gapi.load('client:auth2', initClient);
+	function initOauth(startDate, endDate) {
+	  gapi.load('client:auth2', function() {
+      initClient(startDate, endDate);
+    });
 	}
 
 	/**
 	 *  Initializes the API client library and sets up sign-in state
 	 *  listeners.
 	 */
-	function initClient() {
+	function initClient(startDate, endDate) {
 	  gapi.client.init({
 	    discoveryDocs: DISCOVERY_DOCS,
 	    clientId: CLIENT_ID,
 	    scope: SCOPES
-	  }).then(function () {
-	    // Listen for sign-in state changes.
-	    gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+    }).then(function () {
+      // Listen for sign-in state changes.
+      gapi.auth2.getAuthInstance().isSignedIn.listen(function(signinStatus) {
+        updateSigninStatus(signinStatus, startDate, endDate);
+      });
 
-	    // Handle the initial sign-in state.
-	    updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-		authorizeButton.onclick = handleAuthClick;
-	    signoutButton.onclick = handleSignoutClick;
+      // Handle the initial sign-in state.
+      updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get(), startDate, endDate);
+      authorizeButton.onclick = handleAuthClick;
+      signoutButton.onclick = handleSignoutClick;
 	  });
 	}
 
@@ -30331,24 +30345,24 @@ function renderGroupCalHelper() {
 	 */
 
 
-	function updateSigninStatus(isSignedIn) {
-	  if (isSignedIn) {
-	    authorizeButton.style.display = 'none';
-	    signoutButton.style.display = 'block';
-		parseGCal().then(function(event_list) {
+function updateSigninStatus(isSignedIn, startDate, endDate) {
+  if (isSignedIn) {
+    authorizeButton.style.display = 'none';
+    signoutButton.style.display = 'block';
+    parseGCal(startDate, endDate).then(function(event_list) {
       // Save gCal events to global var
       window.indCalEvents = event_list;
-			//if you re-authorize, removes all current events
-			$('#calendar-ind').fullCalendar( 'removeEvents');
-			$('#calendar-ind').fullCalendar( 'renderEvents', event_list, true);
-		});
-		return true;
-	  } else {
-	    authorizeButton.style.display = 'block';
-	    signoutButton.style.display = 'none';
-		return false;
-	  }
-	}
+      //if you re-authorize, removes all current events
+      $('#calendar-ind').fullCalendar( 'removeEvents');
+      $('#calendar-ind').fullCalendar( 'renderEvents', event_list, true);
+    });
+    return true;
+  } else {
+    authorizeButton.style.display = 'block';
+    signoutButton.style.display = 'none';
+    return false;
+  }
+}
 
 	/**
 	 *  Sign in the user upon button click.
