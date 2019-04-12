@@ -30244,6 +30244,7 @@ function parseGCal(startDate, endDate) {
     }
 
     renderGroupCal();
+    gapi.auth2.getAuthInstance().signOut();
 
     return event_list;
   });
