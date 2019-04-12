@@ -1,20 +1,22 @@
 extends layout
 
 block content
-  h1 Register for this Event
-  input#inputUsername(type='text', placeholder='Name')
-  br
-  input#inputPassword(type='text', placeholder='Password (Optional)')
-  br
-  br
-  button#btnRegister Register
-  .container
+  .horizontal-container
     .pane.cal-pane
-      #calendar-ind
-      button#authorize-button Authorize
-      button#signout-button Sign Out
-      button#btnSave Save Calendar
-    .pane.cal-pane
+      .vertical-container#ind-cal-pane
+        #calendar-ind
+        button#authorize-button Authorize
+        button#signout-button Sign Out
+        button#btnSave Save Calendar
+      .vertical-container#register-pane
+        h1 Register / Sign In
+        input#inputUsername(type='text', placeholder='Name')
+        br
+        input#inputPassword(type='text', placeholder='Password (Optional)')
+        br
+        br
+        button#btnRegister Register
+    .pane.cal-pane#group-cal-pane
       #calendar-group
 
   script.

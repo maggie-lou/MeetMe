@@ -30197,8 +30197,17 @@ function registerUser() {
         groupID: groupID,
         calendar: "{}",
       }, function(data, status) {
-        // Save newly created user ID to global variable
-        window.userID = data._id;
+        // Check if wrong password
+        var wrongPassword = false;
+
+        if (wrongPassword) {
+
+        } else {
+          $('#register-pane').css({ 'display': 'none' });
+          $('#ind-cal-pane').css({ 'display': 'inherit' });
+          // Save newly created user ID to global variable
+          window.userID = data._id;
+        }
       });
   }
 }

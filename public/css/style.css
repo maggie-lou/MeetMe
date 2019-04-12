@@ -6,7 +6,13 @@ body {
      font-family: monospace;
  }
 
- .container {
+ .vertical-container {
+     border: 0;
+     display: flex;
+     flex-direction: column;
+ }
+
+ .horizontal-container {
      border: 0;
      display: flex;
      flex-direction: row;
@@ -31,5 +37,9 @@ body {
      border-radius: 6px;
      border: 1px solid black;
      overflow-x: scroll;
+ }
+
+ #ind-cal-pane {
+    display:none;
  }
 
