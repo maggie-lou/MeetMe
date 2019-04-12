@@ -40,7 +40,8 @@ $(document).ready(function() {
           endDate: endDate,
           link: link,
         }, function(data, status) {
-
+          // Route to group calendar page
+          window.location.assign('/' + data.link);
         });
     }
   }
