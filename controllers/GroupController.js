@@ -95,4 +95,21 @@ router.delete('/delete/all', function(req, res) {
   });
 
 });
+
+// Update a group's calendar
+router.patch('/:id/cal', function(req, res) {
+	Groups.findOneAndUpdate({ _id: req.params.id },
+    { calendar: req.body.calendar
+    }, function(err, group) {
+		if (err) {
+      console.log(err);
+      res.status(500).json({ error: err });
+      return;
+    }
+		else {
+      console.log("Successfully updated group calendar.");
+			res.send(group);
+		}
+	});
+});
 module.exports = router;
