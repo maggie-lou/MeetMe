@@ -141,9 +141,19 @@ function updateCalendars(groupCalDict) {
 }
 
 // Combine dictionaries representing individual and group calendars into a single group calendar dictionary
-function combineIndGroupCalendars(indCalendar, groupCalendar) {
-  // TODO: Implement
-  return groupCalendar
+function combineIndGroupCalendars(indCalDict, groupCalDict) {
+  let username = "azerbijan";
+  for (let key in indCalDict) {
+    let timeslot;
+    if (key in groupCalDict) {
+      timeslot = groupCalDict[key];
+      timeslot.busyPeople.push(username);
+    } else {
+      timeslot = indCalDict[key];
+    }
+    groupCalDict[key] = timeslot;
+  }
+  return groupCalDict;
 }
 
 // Transform FullCalendar events into dictionary, where key is start time and value is calendar event
