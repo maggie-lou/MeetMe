@@ -30336,29 +30336,37 @@ const moment = require('../../node_modules/moment');
 const fullCalendar = require('../../node_modules/fullcalendar');
 const rainbowVis = require('../../node_modules/rainbowvis.js');
 
-const groupID = "";
 var userID = "";
 
 var unsavedChanges = false;
 
-var groupCalEvents = [];
-var indCalEvents = [];
-var combinedCalEvents = [];
-
-
 $(document).ready(function() {
-  // Initialize click handlers
-  $('#btnRegister').on('click', registerUser);
-  $('#btnSave').on('click', updateIndCal);
-  $('#calendar-ind').on('click', renderGroupCal);
 
   // Warn user before leaving page
   window.onbeforeunload = confirmExit;
 
-  var group = getGroup(groupLink, initCalendars); // groupLink defined in fillcal.jade script tag
+  getGroup(groupLink, function(group) { // groupLink defined in fillcal.jade script tag
+    let groupCalDict = JSON.parse(group.calendar);
+    let groupCalEvents = deserializeCalEvents(groupCalDict);
+
+    initCalendars(group, groupCalEvents);
+    renderGroupCal(groupCalEvents);
+
+    // Initialize click handlers
+    $('#btnRegister').on('click', function() {
+      registerUser(group._id);
+    });
+    $('#btnSave').on('click', function() {
+      updateCalendars(groupCalDict);
+    });
+    $('#calendar-ind').on('click', function() {
+      renderGroupCal(groupCalEvents);
+    });
+
+  });
 });
 
-function initCalendars(group) {
+function initCalendars(group, groupCalEvents) {
   var calInd = $('#calendar-ind').fullCalendar({
     defaultView: 'agenda',
     selectable: true,   // Users can highlight a timeslot by clicking and dragging
@@ -30399,7 +30407,7 @@ function initCalendars(group) {
     },
   })
 
-  initOauth(group.startDate, group.endDate);
+  initOauth(group.startDate, group.endDate, groupCalEvents);
 }
 
 function confirmExit() {
@@ -30429,32 +30437,53 @@ function getGroup(groupLink, callback) {
         alert("No group with input link.");
     },
     success: function(group) {
+      window.group = group;
       callback(group);
       return group;
     }
   });
 }
 
-// Update the user's calendar in the database
-function updateIndCal() {
-  let calendar = serializeCalEvents();
+// Update the user and group's calendar in the database
+function updateCalendars(groupCalDict) {
+  let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
+  let indCalDict = serializeCalEvents(indCalEvents);
+
+  let combinedCalDict = combineIndGroupCalendars(indCalDict, groupCalDict);
 
   $.ajax({
     type: 'PATCH',
     url: '../users/' + window.userID + '/cal',
     data:
     {
-      calendar: JSON.stringify(calendar),
+      calendar: JSON.stringify(indCalDict),
     },
     success: function(response) {
       window.unsavedChanges = false;
     }
+  }).done(function() {
+    $.ajax({
+      type: 'PATCH',
+      url: '../groups/' + window.group._id + '/cal',
+      data:
+      {
+        calendar: JSON.stringify(groupCalDict),
+      },
+    });
   });
 }
 
-// Transform FullCalendar events into dictionary
+// Combine dictionaries representing individual and group calendars into a single group calendar dictionary
+function combineIndGroupCalendars(indCalendar, groupCalendar) {
+  // TODO: Implement
+  return groupCalendar
+}
+
+// Transform FullCalendar events into dictionary, where key is start time and value is calendar event
+// Split each event into 30 minute intervals
 function serializeCalEvents() {
   let dict = {}
+  let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
   indCalEvents.forEach(function(calEvent) {
     // Split event into 30 minute timeslots
     let currentTime = moment(calEvent.start);
@@ -30468,9 +30497,14 @@ function serializeCalEvents() {
   return dict;
 }
 
-// Transform dictionary into array of FullCaelndar events
-function deserializeCalEvents(calDict, callback) {
+// Transform dictionary into array of FullCalendar events
+function deserializeCalEvents(calDict) {
+  // var rainbow = new Rainbow();
   let events = [];
+
+  // rainbow.setNumberRange(1, callDict.size());
+  // rainbow.setSpectrum('#b230ff', '#009549');
+  var index = 0;
 
   for (var key in calDict) {
     // Make Event Object
@@ -30481,18 +30515,17 @@ function deserializeCalEvents(calDict, callback) {
     eventObj.start = timeslot.startTime;
     eventObj.endTime = timeslot.endTime;
 
+    // eventObj.eventColor = "#" + rainbow.colourAt(index);
+    index++;
+
     events.push(eventObj);
   }
 
-  // Save globally
-  groupCalEvents = events;
-
-  callback();
   return events;
 }
 
 // Registers new user for the current group, based on input fields
-function registerUser() {
+function registerUser(groupID) {
   var name = document.getElementById('inputUsername').value;
   var password = document.getElementById('inputPassword').value;
 
@@ -30528,7 +30561,7 @@ function inputEmpty(username) {
 }
 
 // Parse gCal events to FullCalendar events
-function parseGCal(startDate, endDate) {
+function parseGCal(startDate, endDate, groupCalEvents) {
   return gapi.client.calendar.events.list({
     'calendarId': 'primary',
     'timeMin': startDate,
@@ -30559,11 +30592,13 @@ function parseGCal(startDate, endDate) {
           eventObj.end = event.end.dateTime;
         }
 
+        eventObj.extra = "Does this break";
+
         event_list.push(eventObj);
       }
     }
 
-    renderGroupCal();
+    renderGroupCal(groupCalEvents);
     gapi.auth2.getAuthInstance().signOut();
 
     return event_list;
@@ -30619,15 +30654,15 @@ function parseClientEvents(events) {
 
 }
 // Combine individual and group events and render on right calendar
-function renderGroupCal() {
+function renderGroupCal(groupCalEvents) {
   window.unsavedChanges = true;
   // Want the newly created event to show up on the individual calendar, before parseClientEvents tries to grab it to display on group calendar
-  setTimeout(renderGroupCalHelper, 300);
+  setTimeout(renderGroupCalHelper, 300, groupCalEvents);
 }
 
 
 // Callback function for renderGroupCal
-function renderGroupCalHelper() {
+function renderGroupCalHelper(groupCalEvents) {
   indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
   var combinedCal = groupCalEvents.concat(indCalEvents);
   $('#calendar-group').fullCalendar( 'removeEvents');
@@ -30650,9 +30685,9 @@ function renderGroupCalHelper() {
 	var authorizeButton = document.getElementById('authorize-button');
 	var signoutButton = document.getElementById('signout-button');
 
-	function initOauth(startDate, endDate) {
+	function initOauth(startDate, endDate, groupCalEvents) {
 	  gapi.load('client:auth2', function() {
-      initClient(startDate, endDate);
+      initClient(startDate, endDate, groupCalEvents);
     });
 	}
 
@@ -30660,7 +30695,7 @@ function renderGroupCalHelper() {
 	 *  Initializes the API client library and sets up sign-in state
 	 *  listeners.
 	 */
-	function initClient(startDate, endDate) {
+	function initClient(startDate, endDate, groupCalEvents) {
 	  gapi.client.init({
 	    discoveryDocs: DISCOVERY_DOCS,
 	    clientId: CLIENT_ID,
@@ -30668,11 +30703,11 @@ function renderGroupCalHelper() {
     }).then(function () {
       // Listen for sign-in state changes.
       gapi.auth2.getAuthInstance().isSignedIn.listen(function(signinStatus) {
-        updateSigninStatus(signinStatus, startDate, endDate);
+        updateSigninStatus(signinStatus, startDate, endDate, groupCalEvents);
       });
 
       // Handle the initial sign-in state.
-      updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get(), startDate, endDate);
+      updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get(), startDate, endDate, groupCalEvents);
       authorizeButton.onclick = handleAuthClick;
       signoutButton.onclick = handleSignoutClick;
 	  });
@@ -30684,13 +30719,11 @@ function renderGroupCalHelper() {
 	 */
 
 
-function updateSigninStatus(isSignedIn, startDate, endDate) {
+function updateSigninStatus(isSignedIn, startDate, endDate, groupCalEvents) {
   if (isSignedIn) {
     authorizeButton.style.display = 'none';
     signoutButton.style.display = 'block';
-    parseGCal(startDate, endDate).then(function(event_list) {
-      // Save gCal events to global var
-      window.indCalEvents = event_list;
+    parseGCal(startDate, endDate, groupCalEvents).then(function(event_list) {
       //if you re-authorize, removes all current events
       $('#calendar-ind').fullCalendar( 'removeEvents');
       $('#calendar-ind').fullCalendar( 'renderEvents', event_list, true);
