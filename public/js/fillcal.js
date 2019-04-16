@@ -1,7 +1,7 @@
 const Timeslot = require('./Timeslot.js');
 const moment = require('../../node_modules/moment');
 const fullCalendar = require('../../node_modules/fullcalendar');
-const rainbowVis = require('../../node_modules/rainbowvis.js');
+const Rainbow = require('../../node_modules/rainbowvis.js');
 
 var userID = "";
 
@@ -14,7 +14,7 @@ $(document).ready(function() {
 
   getGroup(groupLink, function(group) { // groupLink defined in fillcal.jade script tag
     let groupCalDict = JSON.parse(group.calendar);
-    let groupCalEvents = deserializeCalEvents(groupCalDict);
+    let groupCalEvents = deserializeCalEvents(groupCalDict, group.size);
 
     initCalendars(group, groupCalEvents);
     renderGroupCal(groupCalEvents);
@@ -175,13 +175,13 @@ function serializeCalEvents() {
 }
 
 // Transform dictionary into array of FullCalendar events
-function deserializeCalEvents(calDict) {
-  // var rainbow = new Rainbow();
+function deserializeCalEvents(calDict, groupSize) {
   let events = [];
 
-  // rainbow.setNumberRange(1, callDict.size());
-  // rainbow.setSpectrum('#b230ff', '#009549');
-  var index = 0;
+  var rainbow = new Rainbow();
+  rainbow.setNumberRange(1, groupSize);
+  // rainbow.setSpectrum('red', 'black');
+  rainbow.setSpectrum('lightskyblue', 'navy');
 
   for (var key in calDict) {
     // Make Event Object
@@ -190,10 +190,8 @@ function deserializeCalEvents(calDict) {
     var eventObj = {};
     eventObj.title = timeslot.title;
     eventObj.start = timeslot.startTime;
-    eventObj.endTime = timeslot.endTime;
-
-    // eventObj.eventColor = "#" + rainbow.colourAt(index);
-    index++;
+    eventObj.end = timeslot.endTime;
+    eventObj.color = "#" + rainbow.colourAt(timeslot.busyPeople.length);
 
     events.push(eventObj);
   }

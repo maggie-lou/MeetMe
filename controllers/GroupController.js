@@ -9,6 +9,8 @@ router.post('/', function(req, res) {
 		startDate: req.body.startDate,
 		endDate: req.body.endDate,
 		link: req.body.link,
+    calendar: "{}",
+    size: 0,
 	});
 
 	newGroup.save(function(err, saved) {
@@ -108,6 +110,23 @@ router.patch('/:id/cal', function(req, res) {
     }
 		else {
       console.log("Successfully updated group calendar.");
+			res.send(group);
+		}
+	});
+});
+
+// Update a group's number of people
+router.patch('/:id/size', function(req, res) {
+	Groups.findOneAndUpdate({ _id: req.params.id },
+    { size: req.body.size
+    }, function(err, group) {
+		if (err) {
+      console.log(err);
+      res.status(500).json({ error: err });
+      return;
+    }
+		else {
+      console.log("Successfully updated group number of participants.");
 			res.send(group);
 		}
 	});
