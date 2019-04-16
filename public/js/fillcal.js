@@ -216,18 +216,15 @@ function registerUser(groupID) {
         groupID: groupID,
         calendar: "{}",
       }, function(data, status) {
-        // Check if wrong password
-        var wrongPassword = false;
+        $('#register-pane').css({ 'display': 'none' });
+        $('#ind-cal-pane').css({ 'display': 'inherit' });
 
-        if (wrongPassword) {
-
-        } else {
-          $('#register-pane').css({ 'display': 'none' });
-          $('#ind-cal-pane').css({ 'display': 'inherit' });
-
-          // Save newly created user data to global variable
-          window.currentUserID = data._id;
-          window.currentUserName = name;
+        // Save newly created user data to global variable
+        window.currentUserID = data._id;
+        window.currentUserName = name;
+      }).fail(function(data, textStatus) {
+        if (wrongPassword(data.status)) {
+          alert("Wrong Password.");
         }
       });
   }
@@ -236,6 +233,10 @@ function registerUser(groupID) {
 
 function inputEmpty(username) {
   return username == "";
+}
+
+function wrongPassword(statusCode) {
+  return statusCode == 403;
 }
 
 // Parse gCal events to FullCalendar events
