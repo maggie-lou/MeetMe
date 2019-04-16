@@ -30336,7 +30336,8 @@ const moment = require('../../node_modules/moment');
 const fullCalendar = require('../../node_modules/fullcalendar');
 const Rainbow = require('../../node_modules/rainbowvis.js');
 
-var userID = "";
+var currentUserName;
+var currentUserID;
 
 var unsavedChanges = false;
 
@@ -30357,7 +30358,7 @@ $(document).ready(function() {
       registerUser(group._id);
     });
     $('#btnSave').on('click', function() {
-      updateCalendars(groupCalDict);
+      updateCalendars(group._id, groupCalDict);
     });
     $('#calendar-ind').on('click', function() {
       renderGroupCal(groupCalEvents);
@@ -30445,7 +30446,7 @@ function getGroup(groupLink, callback) {
 }
 
 // Update the user and group's calendar in the database
-function updateCalendars(groupCalDict) {
+function updateCalendars(groupID, groupCalDict) {
   let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
   let indCalDict = serializeCalEvents(indCalEvents);
 
@@ -30453,7 +30454,7 @@ function updateCalendars(groupCalDict) {
 
   $.ajax({
     type: 'PATCH',
-    url: '../users/' + window.userID + '/cal',
+    url: '../users/' + window.currentUserID + '/cal',
     data:
     {
       calendar: JSON.stringify(indCalDict),
@@ -30464,10 +30465,10 @@ function updateCalendars(groupCalDict) {
   }).done(function() {
     $.ajax({
       type: 'PATCH',
-      url: '../groups/' + window.group._id + '/cal',
+      url: '../groups/' + groupID + '/cal',
       data:
       {
-        calendar: JSON.stringify(groupCalDict),
+        calendar: JSON.stringify(combinedCalDict),
       },
     });
   });
@@ -30475,12 +30476,11 @@ function updateCalendars(groupCalDict) {
 
 // Combine dictionaries representing individual and group calendars into a single group calendar dictionary
 function combineIndGroupCalendars(indCalDict, groupCalDict) {
-  let username = "azerbijan";
   for (let key in indCalDict) {
     let timeslot;
     if (key in groupCalDict) {
       timeslot = groupCalDict[key];
-      timeslot.busyPeople.push(username);
+      timeslot.busyPeople.push(window.currentUserName);
     } else {
       timeslot = indCalDict[key];
     }
@@ -30500,7 +30500,7 @@ function serializeCalEvents() {
     while (currentTime.isBefore(moment(calEvent.end))) {
       let timeslotStart = currentTime.format();
       let timeslotEnd = currentTime.add(30, 'minutes').format();
-      let t = new Timeslot("", timeslotStart, timeslotEnd, ["Current"]);
+      let t = new Timeslot("", timeslotStart, timeslotEnd, [window.currentUserName]);
       dict[timeslotStart] = t;
     }
   });
@@ -30557,11 +30557,14 @@ function registerUser(groupID) {
         } else {
           $('#register-pane').css({ 'display': 'none' });
           $('#ind-cal-pane').css({ 'display': 'inherit' });
-          // Save newly created user ID to global variable
-          window.userID = data._id;
+
+          // Save newly created user data to global variable
+          window.currentUserID = data._id;
+          window.currentUserName = name;
         }
       });
   }
+
 }
 
 function inputEmpty(username) {
