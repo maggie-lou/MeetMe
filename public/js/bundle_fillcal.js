@@ -37859,7 +37859,16 @@ function updateSigninStatus(isSignedIn, startDate, endDate, groupCalEvents) {
 	 *  Sign in the user upon button click.
 	 */
 	function handleAuthClick(event) {
-	  gapi.auth2.getAuthInstance().signIn();
+    let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
+    let emptyCal = indCalEvents.length == 0;
+    let continueOauth = true;
+    if (!emptyCal) {
+      continueOauth = confirm("If you authorize with Google Calendar, your existing calendar will be over-written. Do you wish to continue?");
+    }
+
+    if (continueOauth) {
+      gapi.auth2.getAuthInstance().signIn();
+    }
 	}
 
 	/**
