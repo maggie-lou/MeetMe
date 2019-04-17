@@ -15,7 +15,7 @@ $(document).ready(function() {
 
   getGroup(groupLink, function(group) { // groupLink defined in fillcal.jade script tag
     let groupCalDict = JSON.parse(group.calendar);
-    let groupCalEvents = deserializeCalEvents(groupCalDict, group.size);
+    let groupCalEvents = deserializeGroupCalEvents(groupCalDict, group.size);
 
     initCalendars(group, groupCalEvents);
     renderGroupCal(groupCalEvents);
@@ -175,12 +175,32 @@ function serializeCalEvents() {
 }
 
 // Transform dictionary into array of FullCalendar events
-function deserializeCalEvents(calDict, groupSize) {
+function deserializeIndCalEvents(calDict) {
+  let events = [];
+
+  for (var key in calDict) {
+    // Make Event Object
+    var timeslot = calDict[key];
+
+    var eventObj = {};
+    eventObj.title = timeslot.title;
+    eventObj.start = timeslot.startTime;
+    eventObj.end = timeslot.endTime;
+    eventObj.color = "tomato";
+
+    events.push(eventObj);
+  }
+
+  return events;
+}
+
+
+// Transform dictionary into array of FullCalendar events
+function deserializeGroupCalEvents(calDict, groupSize) {
   let events = [];
 
   var rainbow = new Rainbow();
   rainbow.setNumberRange(1, groupSize);
-  // rainbow.setSpectrum('red', 'black');
   rainbow.setSpectrum('lightskyblue', 'navy');
 
   for (var key in calDict) {
@@ -222,6 +242,10 @@ function registerUser(groupID) {
         // Save newly created user data to global variable
         window.currentUserID = data._id;
         window.currentUserName = name;
+
+        let indCalDict = JSON.parse(data.calendar);
+        let indCalEvents = deserializeIndCalEvents(indCalDict);
+        renderIndCal(indCalEvents);
       }).fail(function(data, textStatus) {
         if (wrongPassword(data.status)) {
           alert("Wrong Password.");
@@ -326,6 +350,7 @@ function parseClientEvents(events) {
 
     eventObj.start = events[i].start._i;
     eventObj.end = events[i].end._i;
+    eventObj.color = "tomato";
     parsedCal.push(eventObj);
   }
 
@@ -346,6 +371,11 @@ function renderGroupCalHelper(groupCalEvents) {
   var combinedCal = groupCalEvents.concat(indCalEvents);
   $('#calendar-group').fullCalendar( 'removeEvents');
   $('#calendar-group').fullCalendar( 'renderEvents', combinedCal, true);
+}
+
+function renderIndCal(indCalEvents) {
+  $('#calendar-ind').fullCalendar( 'removeEvents');
+  $('#calendar-ind').fullCalendar( 'renderEvents', indCalEvents, true);
 }
 
 
