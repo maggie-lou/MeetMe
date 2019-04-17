@@ -43,3 +43,8 @@ body {
     display:none;
  }
 
+ .tooltipevent {
+      width:100px;height:100px;background:#ccc;position:absolute;z-index:10001;
+ }
+
+

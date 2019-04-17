@@ -1,7 +1,9 @@
+window.$ = require('jquery');
 const Timeslot = require('./Timeslot.js');
 const moment = require('../../node_modules/moment');
 const fullCalendar = require('../../node_modules/fullcalendar');
 const Rainbow = require('../../node_modules/rainbowvis.js');
+require('../../node_modules/bootstrap');
 
 var currentUserName;
 var currentUserID;
@@ -17,7 +19,7 @@ $(document).ready(function() {
     let groupCalDict = JSON.parse(group.calendar);
     let groupCalEvents = deserializeGroupCalEvents(groupCalDict, group.size);
 
-    initCalendars(group, groupCalEvents);
+    initCalendars(group, groupCalEvents, groupCalDict);
     renderGroupCal(groupCalEvents);
 
     // Initialize click handlers
@@ -34,7 +36,7 @@ $(document).ready(function() {
   });
 });
 
-function initCalendars(group, groupCalEvents) {
+function initCalendars(group, groupCalEvents, groupCalDict) {
   var calInd = $('#calendar-ind').fullCalendar({
     defaultView: 'agenda',
     selectable: true,   // Users can highlight a timeslot by clicking and dragging
@@ -72,6 +74,28 @@ function initCalendars(group, groupCalEvents) {
     visibleRange: {
       start: moment(group.startDate).startOf("day"),
       end: moment(group.endDate).add(1, 'days')
+    },
+
+    // Hovering on event will show names of busy people
+    eventMouseover: function(calEvent, jsEvent, view) {
+      let busyPeople = groupCalDict[calEvent.start.format()].busyPeople;
+      var tooltip = '<div class="tooltipevent">' + busyPeople + '</div>';
+      var $tooltip = $(tooltip).appendTo('body');
+
+      $(this).mouseover(function(e) {
+        $(this).css('z-index', 10000);
+        $tooltip.fadeIn('500');
+        $tooltip.fadeTo('10', 1.9);
+      }).mousemove(function(e) {
+        $tooltip.css('top', e.pageY + 10);
+        $tooltip.css('left', e.pageX + 20);
+      });
+    },
+
+    // Remove busy people overview when hovering ends
+    eventMouseout: function(calEvent, jsEvent) {
+      $(this).css('z-index', 8);
+      $('.tooltipevent').remove();
     },
   })
 
