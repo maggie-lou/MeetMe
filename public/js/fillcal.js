@@ -24,7 +24,7 @@ $(document).ready(function() {
 
     // Initialize click handlers
     $('#btnRegister').on('click', function() {
-      registerUser(group._id);
+      registerUser(group._id, groupCalEvents);
     });
     $('#btnSave').on('click', function() {
       updateCalendars(group._id, groupCalDict);
@@ -65,6 +65,11 @@ function initCalendars(group, groupCalEvents, groupCalDict) {
     eventClick: function(calEvent, jsEvent, view) {
       $(this).css('border-color', 'red');
       setTimeout(deleteEvent, 100, calEvent, this);
+    },
+
+    // Editing size of pre-existing event will update group calendar
+    eventResize: function(info) {
+      renderGroupCal(groupCalEvents);
     }
   })
 
@@ -246,7 +251,7 @@ function deserializeGroupCalEvents(calDict, groupSize) {
 }
 
 // Registers new user for the current group, based on input fields
-function registerUser(groupID) {
+function registerUser(groupID, groupCalEvents) {
   var name = document.getElementById('inputUsername').value;
   var password = document.getElementById('inputPassword').value;
 
@@ -271,7 +276,7 @@ function registerUser(groupID) {
 
         let indCalDict = JSON.parse(data.calendar);
         let indCalEvents = deserializeIndCalEvents(indCalDict);
-        renderIndCal(indCalEvents);
+        renderIndCal(indCalEvents, groupCalEvents);
       }).fail(function(data, textStatus) {
         if (wrongPassword(data.status)) {
           alert("Wrong Password.");
@@ -399,10 +404,11 @@ function renderGroupCalHelper(groupCalEvents) {
   $('#calendar-group').fullCalendar( 'renderEvents', combinedCal, true);
 }
 
-function renderIndCal(indCalEvents) {
+function renderIndCal(indCalEvents, groupCalEvents) {
   $("#calendar-ind").fullCalendar('render');
   $('#calendar-ind').fullCalendar( 'removeEvents');
   $('#calendar-ind').fullCalendar( 'renderEvents', indCalEvents, true);
+  renderGroupCal(groupCalEvents);
 }
 
 
