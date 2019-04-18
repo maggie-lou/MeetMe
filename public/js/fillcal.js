@@ -400,6 +400,7 @@ function renderGroupCalHelper(groupCalEvents) {
 }
 
 function renderIndCal(indCalEvents) {
+  $("#calendar-ind").fullCalendar('render');
   $('#calendar-ind').fullCalendar( 'removeEvents');
   $('#calendar-ind').fullCalendar( 'renderEvents', indCalEvents, true);
 }
