@@ -37609,21 +37609,23 @@ function deserializeIndCalEvents(calDict) {
 function deserializeGroupCalEvents(calDict, groupSize) {
   let events = [];
 
-  var rainbow = new Rainbow();
-  rainbow.setNumberRange(1, groupSize);
-  rainbow.setSpectrum('lightskyblue', 'navy');
+  if (groupSize > 0) {
+    var rainbow = new Rainbow();
+    rainbow.setNumberRange(1, groupSize);
+    rainbow.setSpectrum('lightskyblue', 'navy');
 
-  for (var key in calDict) {
-    // Make Event Object
-    var timeslot = calDict[key];
+    for (var key in calDict) {
+      // Make Event Object
+      var timeslot = calDict[key];
 
-    var eventObj = {};
-    eventObj.title = timeslot.title;
-    eventObj.start = timeslot.startTime;
-    eventObj.end = timeslot.endTime;
-    eventObj.color = "#" + rainbow.colourAt(timeslot.busyPeople.length);
+      var eventObj = {};
+      eventObj.title = timeslot.title;
+      eventObj.start = timeslot.startTime;
+      eventObj.end = timeslot.endTime;
+      eventObj.color = "#" + rainbow.colourAt(timeslot.busyPeople.length);
 
-    events.push(eventObj);
+      events.push(eventObj);
+    }
   }
 
   return events;
