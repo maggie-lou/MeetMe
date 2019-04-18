@@ -6,7 +6,7 @@ var groupSchema = new Schema({
   size: Number,
 	startDate: Date,
 	endDate: Date,
-	link: String,
+	link: { type: String, unique: true },
   calendar: String,
 });
 

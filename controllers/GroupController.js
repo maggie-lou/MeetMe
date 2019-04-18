@@ -1,29 +1,48 @@
 var express = require('express');
-var Groups = require('../models/groups');
 const router = express.Router();
+
+var Groups = require('../models/groups');
+const Utils = require('../helpers/utils');
 
 
 router.post('/', function(req, res) {
-	var newGroup = new Groups({
-		name: req.body.name,
-		startDate: req.body.startDate,
-		endDate: req.body.endDate,
-		link: req.body.link,
+  saveGroup(
+    req.body.name,
+    req.body.startDate,
+    req.body.endDate,
+    Utils.generateUniqueID(),
+    function(response) {
+      res.send(response);
+    }
+  );
+});
+
+function saveGroup(name, startDate, endDate, link, callback) {
+  var newGroup = new Groups({
+    name: name,
+    startDate: startDate,
+    endDate: endDate,
+    link: link,
     calendar: "{}",
     size: 0,
-	});
+  });
 
-	newGroup.save(function(err, saved) {
-		if (err) {
+  newGroup.save(function(err, saved) {
+    if (err) {
+      let nonUniqueLinkError = err.name == 'MongoError' && err.code === 11000;
+      if (nonUniqueLinkError) {
+        console.log("Non unique group link - regenerating link.");
+        saveGroup(name, startDate, endDate, Utils.generateUniqueID(), callback);
+        return;
+      }
       console.log(err);
-      res.send(err);
-      return;
+      callback(err);
     } else {
-			console.log('Saved Group!');
-			res.send(newGroup);
-		}
-	});
-});
+      console.log('Saved Group!');
+      callback(newGroup);
+    }
+  });
+}
 
 
 // Returns a JSON of all entries in the database

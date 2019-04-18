@@ -3,7 +3,6 @@ const datepicker = require('../../node_modules/js-datepicker');
 const datepickerCSS = require('../../node_modules/js-datepicker/dist/datepicker.min.css');
 const moment = require('../../node_modules/moment');
 const fullCalendar = require('../../node_modules/fullcalendar');
-const utils = require('../../helpers/utils');
 
 const baseAPI = "localhost:3000/"
 
@@ -27,7 +26,6 @@ $(document).ready(function() {
 
   document.getElementById("create").onclick = function() {
     var eventName = document.getElementById('inputEventName').value;
-    var link = utils.generateUniqueID();
 
     if (inputEmpty(startDate, endDate, eventName, link)) {
       alert("Please fill in all the necessary fields");
@@ -38,7 +36,6 @@ $(document).ready(function() {
           name: eventName,
           startDate: startDate,
           endDate: endDate,
-          link: link,
         }, function(data, status) {
           // Route to group calendar page
           window.location.assign('/' + data.link);
