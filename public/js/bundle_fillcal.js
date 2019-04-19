@@ -37406,7 +37406,9 @@ $(document).ready(function() {
     let groupCalEvents = deserializeGroupCalEvents(groupCalDict, group.size);
 
     initCalendars(group, groupCalEvents, groupCalDict);
-    renderGroupCal(groupCalEvents);
+
+    let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
+    renderGroupCal(indCalEvents, groupCalEvents);
 
     // Initialize click handlers
     $('#btnRegister').on('click', function() {
@@ -37417,7 +37419,8 @@ $(document).ready(function() {
       saveCalendars(group._id, groupCalDict, group.size);
     });
     $('#calendar-ind').on('click', function() {
-      renderGroupCal(groupCalEvents);
+      indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
+      renderGroupCal(indCalEvents, groupCalEvents);
     });
 
   });
@@ -37456,7 +37459,8 @@ function initCalendars(group, groupCalEvents, groupCalDict) {
 
     // Editing size of pre-existing event will update group calendar
     eventResize: function(info) {
-      renderGroupCal(groupCalEvents);
+      let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
+      renderGroupCal(indCalEvents, groupCalEvents);
     }
   })
 
@@ -37553,6 +37557,19 @@ function saveCalendars(groupID, groupCalDict, groupSize) {
       {
         calendar: JSON.stringify(combinedCalDict),
       },
+      success: function() {
+        document.getElementById('savedPopup').style.display = 'block';
+        setTimeout(
+          function() {
+            document.getElementById('savedPopup').style.display = 'none';
+          },
+          2500
+        );
+
+        // Re-render group cal
+        let groupCalEvents = deserializeGroupCalEvents(combinedCalDict, groupSize);
+        renderGroupCal([], groupCalEvents);
+      }
     });
   });
 }
@@ -37740,7 +37757,8 @@ function parseGCal(startDate, endDate, groupCalEvents) {
       }
     }
 
-    renderGroupCal(groupCalEvents);
+    let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
+    renderGroupCal(indCalEvents, groupCalEvents);
     gapi.auth2.getAuthInstance().signOut();
 
     return event_list;
@@ -37794,19 +37812,18 @@ function parseClientEvents(events) {
   }
 
   return parsedCal;
-
 }
+
 // Combine individual and group events and render on right calendar
-function renderGroupCal(groupCalEvents) {
+function renderGroupCal(indCalEvents, groupCalEvents) {
   window.unsavedChanges = true;
   // Want the newly created event to show up on the individual calendar, before parseClientEvents tries to grab it to display on group calendar
-  setTimeout(renderGroupCalHelper, 300, groupCalEvents);
+  setTimeout(renderGroupCalHelper, 300, indCalEvents, groupCalEvents);
 }
 
 
 // Callback function for renderGroupCal
-function renderGroupCalHelper(groupCalEvents) {
-  indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
+function renderGroupCalHelper(indCalEvents, groupCalEvents) {
   var combinedCal = groupCalEvents.concat(indCalEvents);
   $('#calendar-group').fullCalendar( 'removeEvents');
   $('#calendar-group').fullCalendar( 'renderEvents', combinedCal, true);
@@ -37816,7 +37833,7 @@ function renderIndCal(indCalEvents, groupCalEvents) {
   $("#calendar-ind").fullCalendar('render');
   $('#calendar-ind').fullCalendar( 'removeEvents');
   $('#calendar-ind').fullCalendar( 'renderEvents', indCalEvents, true);
-  renderGroupCal(groupCalEvents);
+  renderGroupCal(indCalEvents, groupCalEvents);
 }
 
 
