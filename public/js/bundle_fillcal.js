@@ -37474,18 +37474,20 @@ function initCalendars(group, groupCalEvents, groupCalDict) {
 
     // Hovering on event will show names of busy people
     eventMouseover: function(calEvent, jsEvent, view) {
-      let busyPeople = groupCalDict[calEvent.start.format()].busyPeople;
-      var tooltip = '<div class="tooltipevent">' + busyPeople + '</div>';
-      var $tooltip = $(tooltip).appendTo('body');
+      if (!isIndividualEvent(calEvent)) {
+        let busyPeople = groupCalDict[calEvent.start.format()].busyPeople;
+        var tooltip = '<div class="tooltipevent">' + busyPeople + '</div>';
+        var $tooltip = $(tooltip).appendTo('body');
 
-      $(this).mouseover(function(e) {
-        $(this).css('z-index', 10000);
-        $tooltip.fadeIn('500');
-        $tooltip.fadeTo('10', 1.9);
-      }).mousemove(function(e) {
-        $tooltip.css('top', e.pageY + 10);
-        $tooltip.css('left', e.pageX + 20);
-      });
+        $(this).mouseover(function(e) {
+          $(this).css('z-index', 10000);
+          $tooltip.fadeIn('500');
+          $tooltip.fadeTo('10', 1.9);
+        }).mousemove(function(e) {
+          $tooltip.css('top', e.pageY + 10);
+          $tooltip.css('left', e.pageX + 20);
+        });
+      }
     },
 
     // Remove busy people overview when hovering ends
@@ -37496,6 +37498,10 @@ function initCalendars(group, groupCalEvents, groupCalDict) {
   })
 
   initOauth(group.startDate, group.endDate, groupCalEvents);
+}
+
+function isIndividualEvent(calEvent) {
+  return calEvent.color == "tomato";
 }
 
 function confirmExit() {
