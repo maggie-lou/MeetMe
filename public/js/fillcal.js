@@ -24,10 +24,11 @@ $(document).ready(function() {
 
     // Initialize click handlers
     $('#btnRegister').on('click', function() {
-      registerUser(group._id, groupCalEvents);
+      let numNewUsers = registerUser(group._id, groupCalEvents, group.size);
+      group.size += numNewUsers;
     });
     $('#btnSave').on('click', function() {
-      updateCalendars(group._id, groupCalDict);
+      saveCalendars(group._id, groupCalDict, group.size);
     });
     $('#calendar-ind').on('click', function() {
       renderGroupCal(groupCalEvents);
@@ -142,7 +143,7 @@ function getGroup(groupLink, callback) {
 }
 
 // Update the user and group's calendar in the database
-function updateCalendars(groupID, groupCalDict) {
+function saveCalendars(groupID, groupCalDict, groupSize) {
   let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
   let indCalDict = serializeCalEvents(indCalEvents);
 
@@ -230,7 +231,7 @@ function deserializeGroupCalEvents(calDict, groupSize) {
 
   if (groupSize > 0) {
     var rainbow = new Rainbow();
-    rainbow.setNumberRange(1, groupSize);
+    rainbow.setNumberRange(0, groupSize);
     rainbow.setSpectrum('lightskyblue', 'navy');
 
     for (var key in calDict) {
@@ -251,12 +252,14 @@ function deserializeGroupCalEvents(calDict, groupSize) {
 }
 
 // Registers new user for the current group, based on input fields
-function registerUser(groupID, groupCalEvents) {
+// Returns number of new users created
+function registerUser(groupID, groupCalEvents, prevGroupSize) {
   var name = document.getElementById('inputUsername').value;
   var password = document.getElementById('inputPassword').value;
 
   if (inputEmpty(name)) {
     alert("Please enter your name.");
+    return 0;
   } else {
     // Check if existing user
     $.post(
@@ -266,7 +269,7 @@ function registerUser(groupID, groupCalEvents) {
         password: password,
         groupID: groupID,
         calendar: "{}",
-      }, function(data, status) {
+      }, function(data, status, xhr) {
         $('#register-pane').css({ 'display': 'none' });
         $('#ind-cal-pane').css({ 'display': 'inherit' });
 
@@ -277,10 +280,25 @@ function registerUser(groupID, groupCalEvents) {
         let indCalDict = JSON.parse(data.calendar);
         let indCalEvents = deserializeIndCalEvents(indCalDict);
         renderIndCal(indCalEvents, groupCalEvents);
+
+        if (newUserCreated(xhr.status)) {
+          $.ajax({
+            type: 'PATCH',
+            url: '../groups/' + groupID + '/size',
+            data:
+            {
+              size: prevGroupSize + 1
+            }
+          });
+          return 1;
+        } else {
+          return 0;
+        }
       }).fail(function(data, textStatus) {
         if (wrongPassword(data.status)) {
           alert("Wrong Password.");
         }
+        return 0;
       });
   }
 
@@ -292,6 +310,10 @@ function inputEmpty(username) {
 
 function wrongPassword(statusCode) {
   return statusCode == 403;
+}
+
+function newUserCreated(statusCode) {
+  return statusCode == 201;
 }
 
 // Parse gCal events to FullCalendar events

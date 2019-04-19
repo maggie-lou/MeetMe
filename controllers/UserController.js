@@ -19,13 +19,13 @@ router.post('/', function(req, res) {
         if (err) res.status(500).json({ error: err });
         else {
           console.log('Saved User!');
-          res.status(200).json(newUser);
+          res.status(201).json(newUser);
           return;
         }
       });
     } else {
       if (existingUser.password == req.body.password) {
-        res.send(existingUser);
+        res.status(200).json(existingUser);
         return;
       } else {
         res.status(403).json("Invalid password");

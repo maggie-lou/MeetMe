@@ -128,7 +128,7 @@ router.patch('/:id/cal', function(req, res) {
       return;
     }
 		else {
-      console.log("Successfully updated group calendar.");
+      console.log("Successfully updated group calendar for group ID " + req.params.id + ".");
 			res.send(group);
 		}
 	});
@@ -145,7 +145,7 @@ router.patch('/:id/size', function(req, res) {
       return;
     }
 		else {
-      console.log("Successfully updated group number of participants.");
+      console.log("Successfully updated group number of participants to " + req.body.size + ".");
 			res.send(group);
 		}
 	});
