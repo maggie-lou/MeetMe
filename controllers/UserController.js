@@ -6,12 +6,12 @@ const router = express.Router();
 // Creates a new user or returns the existing one with the given username
 // Returns error is provided password is false
 router.post('/', function(req, res) {
-  Users.findOne({username: req.body.username}, function(err, existingUser) {
+  Users.findOne({username: req.body.username, groupID: req.body.groupID }, function(err, existingUser) {
     if (!existingUser) {
       var newUser = new Users({
         username: req.body.username,
         password: req.body.password,
-        link: req.body.link,
+        groupID: req.body.groupID,
         calendar: req.body.calendar,
       });
 
