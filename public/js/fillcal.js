@@ -30,9 +30,6 @@ $(document).ready(function() {
       saveCalendars(groupCalendar);
     });
     $('#calendar-ind').on('click', function() {
-      groupCalendar.setActiveCalPartial();
-      indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
-      renderGroupCal(indCalEvents, groupCalendar);
     });
 
   });
@@ -62,6 +59,9 @@ function initCalendars(groupCalendar) {
         },
         true
       );
+      groupCalendar.setActiveCalPartial();
+      indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
+      renderGroupCal(indCalEvents, groupCalendar);
     },
 
     // Clicking on event will trigger event deletion prompt
