@@ -1,4 +1,14 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+exports.generateUniqueID = () => {
+  // Convert random number to base 36 (numbers + letters) and grab first 9 characters after the decimal
+  return '_' + Math.random().toString(36).substr(2, 9);
+}
+
+exports.clone = function clone(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+},{}],2:[function(require,module,exports){
 /*!
   * Bootstrap v4.3.1 (https://getbootstrap.com/)
   * Copyright 2011-2019 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
@@ -4435,7 +4445,7 @@
 }));
 
 
-},{"jquery":3,"popper.js":5}],2:[function(require,module,exports){
+},{"jquery":4,"popper.js":6}],3:[function(require,module,exports){
 /*!
  * FullCalendar v3.10.0
  * Docs & License: https://fullcalendar.io/
@@ -19584,7 +19594,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /***/ })
 /******/ ]);
 });
-},{"jquery":3,"moment":4}],3:[function(require,module,exports){
+},{"jquery":4,"moment":5}],4:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v3.2.1
  * https://jquery.com/
@@ -29839,7 +29849,7 @@ if ( !noGlobal ) {
 return jQuery;
 } );
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 //! moment.js
 
 ;(function (global, factory) {
@@ -34443,7 +34453,7 @@ return jQuery;
 
 })));
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 (function (global){
 /**!
  * @fileOverview Kickass library to create and place poppers near their reference elements.
@@ -37059,7 +37069,7 @@ return Popper;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /*
 RainbowVis-JS 
 Released under Eclipse Public License - v 1.0
@@ -37369,7 +37379,121 @@ if (typeof module !== 'undefined') {
   module.exports = Rainbow;
 }
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
+const Rainbow = require('../../node_modules/rainbowvis.js');
+const Utils = require('../../helpers/utils');
+
+function GroupCalendar(id, calendar, size, startDate, endDate) {
+  this.id = id;
+  this.size = size;
+  this.startDate = startDate;
+  this.endDate = endDate;
+
+  this.calFull = calendar; // Dictionary of start time to calendar event object for full group (including current user)
+  this.calCurrentUserRemoved; // Dictionary of start time to calendar event object for  group excluding current user
+  this.fullCalActive = true;
+
+  this.eventsFull = null; // List of FullCalendar events, parsed from current calendar dictionary
+  this.eventsCurrentUserRemoved = null;
+}
+
+// Lazily computes and caches list of FullCalendar events for active group calendar
+GroupCalendar.prototype.getEvents = function getEvents() {
+  let events;
+  if (this.fullCalActive) {
+    if (this.eventsFull != null) return this.eventsFull;
+    events = deserializeCalendar(this.calFull, this.size);
+    this.eventsFull = events;
+  } else {
+    if (this.eventsCurrentUserRemoved != null) return this.eventsCurrentUserRemoved;
+    events = deserializeCalendar(this.calCurrentUserRemoved, this.size);
+    this.eventsCurrentUserRemoved = events;
+  }
+  return events;
+}
+
+// Transforms dictionary of calendar events to array of FullCalendar events
+function deserializeCalendar(calDict, groupSize) {
+  let events = [];
+
+  if (groupSize > 0) {
+    var rainbow = new Rainbow();
+    rainbow.setNumberRange(0, groupSize);
+    rainbow.setSpectrum('lightskyblue', 'navy');
+
+    for (var key in calDict) {
+      // Make Event Object
+      var timeslot = calDict[key];
+
+      var eventObj = {};
+      eventObj.title = timeslot.title;
+      eventObj.start = timeslot.startTime;
+      eventObj.end = timeslot.endTime;
+      eventObj.color = "#" + rainbow.colourAt(timeslot.busyPeople.length);
+
+      events.push(eventObj);
+    }
+  }
+  return events;
+}
+
+
+// Removes given user's events from the group calendar.
+// Used so that the group calendar events can be displayed separately from the individual events.
+GroupCalendar.prototype.removeUser = function removeUser(username) {
+  this.calCurrentUserRemoved = Utils.clone(this.calFull);
+  let timesToRemove = []
+
+  for (var time in this.calCurrentUserRemoved) {
+    let calEvent = this.calCurrentUserRemoved[time];
+    let busyPeople = calEvent.busyPeople;
+    if ($.inArray(username, busyPeople) != -1) {
+      if (busyPeople.length == 1) {
+        timesToRemove.push(time);
+      } else {
+        busyPeople = busyPeople.filter(function(name) {
+          let a= name != username;
+          return a;
+        });
+        calEvent.busyPeople = busyPeople;
+        this.calCurrentUserRemoved[time] = calEvent;
+      }
+    }
+  }
+
+  for (var i in timesToRemove) {
+    let time = timesToRemove[i];
+    delete this.calCurrentUserRemoved[time];
+  }
+}
+
+GroupCalendar.prototype.updateFullCal = function updateFullCal(cal) {
+  this.calFull = cal;
+  this.eventsFull = null;
+}
+
+GroupCalendar.prototype.getActiveCal = function getActiveCal() {
+  if (this.fullCalActive) return this.calFull;
+  return this.calCurrentUserRemoved;
+}
+
+GroupCalendar.prototype.setActiveCalFull = function setActiveCalFull() {
+  if (!this.fullCalActive) {
+    this.fullCalActive = true;
+    this.size++; // Include current user in group size
+  }
+}
+
+GroupCalendar.prototype.setActiveCalPartial = function setActiveCalPartial() {
+  if (this.fullCalActive) {
+    this.fullCalActive = false;
+    this.size--; // Exclude current user from group size
+  }
+}
+
+module.exports = GroupCalendar;
+
+},{"../../helpers/utils":1,"../../node_modules/rainbowvis.js":7}],9:[function(require,module,exports){
 function Timeslot(title, startTime, endTime, busyPeople) {
   this.title = title;
   this.startTime = startTime;
@@ -37383,12 +37507,13 @@ function Timeslot(title, startTime, endTime, busyPeople) {
   //
 module.exports = Timeslot;
 
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 window.$ = require('jquery');
 const Timeslot = require('./Timeslot.js');
+const GroupCalendar = require('./GroupCalendar.js');
+const Utils = require('../../helpers/utils');
 const moment = require('../../node_modules/moment');
 const fullCalendar = require('../../node_modules/fullcalendar');
-const Rainbow = require('../../node_modules/rainbowvis.js');
 require('../../node_modules/bootstrap');
 
 var currentUserName;
@@ -37402,40 +37527,38 @@ $(document).ready(function() {
   window.onbeforeunload = confirmExit;
 
   getGroup(groupLink, function(group) { // groupLink defined in fillcal.jade script tag
-    let groupCalDict = JSON.parse(group.calendar);
-    let groupCalEvents = deserializeGroupCalEvents(groupCalDict, group.size);
-
-    initCalendars(group, groupCalEvents, groupCalDict);
-
+    let groupCalendar = new GroupCalendar(group._id, JSON.parse(group.calendar), group.size, group.startDate, group.endDate);
+    initCalendars(groupCalendar);
     let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
-    renderGroupCal(indCalEvents, groupCalEvents);
+    renderGroupCal(indCalEvents, groupCalendar);
 
     // Initialize click handlers
     $('#btnRegister').on('click', function() {
-      let numNewUsers = registerUser(group._id, groupCalEvents, group.size);
-      group.size += numNewUsers;
+      registerUser(groupCalendar);
     });
     $('#btnSave').on('click', function() {
-      saveCalendars(group._id, groupCalDict, group.size);
+      saveCalendars(groupCalendar);
     });
     $('#calendar-ind').on('click', function() {
+      groupCalendar.setActiveCalPartial();
       indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
-      renderGroupCal(indCalEvents, groupCalEvents);
+      renderGroupCal(indCalEvents, groupCalendar);
     });
 
   });
 });
 
-function initCalendars(group, groupCalEvents, groupCalDict) {
+function initCalendars(groupCalendar) {
   var calInd = $('#calendar-ind').fullCalendar({
     defaultView: 'agenda',
     selectable: true,   // Users can highlight a timeslot by clicking and dragging
     editable: true,
     unselectAuto: false, // Clicking elsewhere won't cause current selection to be cleared
     displayEventTime : false,
+    eventColor: "tomato",
     visibleRange: {
-      start: moment(group.startDate).startOf("day"),
-      end: moment(group.endDate).add(1, 'days')
+      start: moment(groupCalendar.startDate).startOf("day"),
+      end: moment(groupCalendar.endDate).add(1, 'days')
     },
 
     // Newly dragged events will persist
@@ -37453,14 +37576,16 @@ function initCalendars(group, groupCalEvents, groupCalDict) {
 
     // Clicking on event will trigger event deletion prompt
     eventClick: function(calEvent, jsEvent, view) {
+      groupCalendar.setActiveCalPartial();
       $(this).css('border-color', 'red');
-      setTimeout(deleteEvent, 100, calEvent, this);
+      setTimeout(deleteEvent, 100, calEvent, this, groupCalendar);
     },
 
     // Editing size of pre-existing event will update group calendar
     eventResize: function(info) {
+      groupCalendar.setActiveCalPartial();
       let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
-      renderGroupCal(indCalEvents, groupCalEvents);
+      renderGroupCal(indCalEvents, groupCalendar);
     }
   })
 
@@ -37468,14 +37593,15 @@ function initCalendars(group, groupCalEvents, groupCalDict) {
     defaultView: 'agenda',
     displayEventTime : false,
     visibleRange: {
-      start: moment(group.startDate).startOf("day"),
-      end: moment(group.endDate).add(1, 'days')
+      start: moment(groupCalendar.startDate).startOf("day"),
+      end: moment(groupCalendar.endDate).add(1, 'days')
     },
 
     // Hovering on event will show names of busy people
     eventMouseover: function(calEvent, jsEvent, view) {
       if (!isIndividualEvent(calEvent)) {
-        let busyPeople = groupCalDict[calEvent.start.format()].busyPeople;
+        let activeCal = groupCalendar.getActiveCal();
+        let busyPeople = activeCal[calEvent.start.format()].busyPeople;
         var tooltip = '<div class="tooltipevent">' + busyPeople + '</div>';
         var $tooltip = $(tooltip).appendTo('body');
 
@@ -37497,7 +37623,7 @@ function initCalendars(group, groupCalEvents, groupCalDict) {
     },
   })
 
-  initOauth(group.startDate, group.endDate, groupCalEvents);
+  initOauth(groupCalendar);
 }
 
 function isIndividualEvent(calEvent) {
@@ -37513,10 +37639,12 @@ function confirmExit() {
 }
 
 
-function deleteEvent(event, cssObject) {
+function deleteEvent(event, cssObject, groupCal) {
   var confirmed = confirm("Do you want to delete this event?");
   if (confirmed) {
     $('#calendar-ind').fullCalendar('removeEvents', event._id);
+    let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
+    renderGroupCal(indCalEvents, groupCal);
   }
   $(cssObject).css('border-color', 'transparent');
 }
@@ -37539,11 +37667,11 @@ function getGroup(groupLink, callback) {
 }
 
 // Update the user and group's calendar in the database
-function saveCalendars(groupID, groupCalDict, groupSize) {
+function saveCalendars(groupCal) {
   let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
   let indCalDict = serializeCalEvents(indCalEvents);
 
-  let combinedCalDict = combineIndGroupCalendars(indCalDict, groupCalDict);
+  let combinedCalDict = combineIndGroupCalendars(indCalDict, groupCal.calCurrentUserRemoved);
 
   $.ajax({
     type: 'PATCH',
@@ -37558,7 +37686,7 @@ function saveCalendars(groupID, groupCalDict, groupSize) {
   }).done(function() {
     $.ajax({
       type: 'PATCH',
-      url: '../groups/' + groupID + '/cal',
+      url: '../groups/' + groupCal.id + '/cal',
       data:
       {
         calendar: JSON.stringify(combinedCalDict),
@@ -37572,9 +37700,10 @@ function saveCalendars(groupID, groupCalDict, groupSize) {
           2500
         );
 
-        // Re-render group cal
-        let groupCalEvents = deserializeGroupCalEvents(combinedCalDict, groupSize);
-        renderGroupCal([], groupCalEvents);
+        // Render combined group calendar
+        groupCal.updateFullCal(combinedCalDict);
+        groupCal.setActiveCalFull();
+        renderGroupCal([], groupCal);
       }
     });
   });
@@ -37582,17 +37711,18 @@ function saveCalendars(groupID, groupCalDict, groupSize) {
 
 // Combine dictionaries representing individual and group calendars into a single group calendar dictionary
 function combineIndGroupCalendars(indCalDict, groupCalDict) {
+  let combinedCalDict = Utils.clone(groupCalDict);
   for (let key in indCalDict) {
     let timeslot;
-    if (key in groupCalDict) {
-      timeslot = groupCalDict[key];
+    if (key in combinedCalDict) {
+      timeslot = combinedCalDict[key];
       timeslot.busyPeople.push(window.currentUserName);
     } else {
       timeslot = indCalDict[key];
     }
-    groupCalDict[key] = timeslot;
+    combinedCalDict[key] = timeslot;
   }
-  return groupCalDict;
+  return combinedCalDict;
 }
 
 // Transform FullCalendar events into dictionary, where key is start time and value is calendar event
@@ -37633,50 +37763,20 @@ function deserializeIndCalEvents(calDict) {
   return events;
 }
 
-
-// Transform dictionary into array of FullCalendar events
-function deserializeGroupCalEvents(calDict, groupSize) {
-  let events = [];
-
-  if (groupSize > 0) {
-    var rainbow = new Rainbow();
-    rainbow.setNumberRange(0, groupSize);
-    rainbow.setSpectrum('lightskyblue', 'navy');
-
-    for (var key in calDict) {
-      // Make Event Object
-      var timeslot = calDict[key];
-
-      var eventObj = {};
-      eventObj.title = timeslot.title;
-      eventObj.start = timeslot.startTime;
-      eventObj.end = timeslot.endTime;
-      eventObj.color = "#" + rainbow.colourAt(timeslot.busyPeople.length);
-
-      events.push(eventObj);
-    }
-  }
-
-  return events;
-}
-
-// Registers new user for the current group, based on input fields
-// Returns number of new users created
-function registerUser(groupID, groupCalEvents, prevGroupSize) {
+// Signs in or registers user, based on username and optional password.
+function registerUser(groupCal) {
   var name = document.getElementById('inputUsername').value;
   var password = document.getElementById('inputPassword').value;
 
   if (inputEmpty(name)) {
     alert("Please enter your name.");
-    return 0;
   } else {
-    // Check if existing user
     $.post(
       '../users',
       {
         username: name,
         password: password,
-        groupID: groupID,
+        groupID: groupCal.id,
         calendar: "{}",
       }, function(data, status, xhr) {
         $('#register-pane').css({ 'display': 'none' });
@@ -37688,29 +37788,28 @@ function registerUser(groupID, groupCalEvents, prevGroupSize) {
 
         let indCalDict = JSON.parse(data.calendar);
         let indCalEvents = deserializeIndCalEvents(indCalDict);
-        renderIndCal(indCalEvents, groupCalEvents);
+        renderIndCal(indCalEvents, groupCal);
 
         if (newUserCreated(xhr.status)) {
           $.ajax({
             type: 'PATCH',
-            url: '../groups/' + groupID + '/size',
+            url: '../groups/' + groupCal.id + '/size',
             data:
             {
-              size: prevGroupSize + 1
+              size: groupCal.size + 1
             }
           });
-          return 1;
         } else {
-          return 0;
+          groupCal.removeUser(name);
+          groupCal.setActiveCalPartial();
+          renderGroupCal(indCalEvents, groupCal);
         }
       }).fail(function(data, textStatus) {
         if (wrongPassword(data.status)) {
           alert("Wrong Password.");
         }
-        return 0;
       });
   }
-
 }
 
 function inputEmpty(username) {
@@ -37726,11 +37825,11 @@ function newUserCreated(statusCode) {
 }
 
 // Parse gCal events to FullCalendar events
-function parseGCal(startDate, endDate, groupCalEvents) {
+function parseGCal(groupCal) {
   return gapi.client.calendar.events.list({
     'calendarId': 'primary',
-    'timeMin': startDate,
-    'timeMax': endDate,
+    'timeMin': groupCal.startDate,
+    'timeMax': groupCal.endDate,
     'showDeleted': false,
     'singleEvents': true,
     'orderBy': 'startTime',
@@ -37757,14 +37856,12 @@ function parseGCal(startDate, endDate, groupCalEvents) {
           eventObj.end = event.end.dateTime;
         }
 
-        eventObj.extra = "Does this break";
-
         event_list.push(eventObj);
       }
     }
 
     let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
-    renderGroupCal(indCalEvents, groupCalEvents);
+    renderGroupCal(indCalEvents, groupCal);
     gapi.auth2.getAuthInstance().signOut();
 
     return event_list;
@@ -37821,25 +37918,26 @@ function parseClientEvents(events) {
 }
 
 // Combine individual and group events and render on right calendar
-function renderGroupCal(indCalEvents, groupCalEvents) {
+function renderGroupCal(indCalEvents, groupCal) {
   window.unsavedChanges = true;
   // Want the newly created event to show up on the individual calendar, before parseClientEvents tries to grab it to display on group calendar
-  setTimeout(renderGroupCalHelper, 300, indCalEvents, groupCalEvents);
+  setTimeout(renderGroupCalHelper, 300, indCalEvents, groupCal);
 }
 
 
 // Callback function for renderGroupCal
-function renderGroupCalHelper(indCalEvents, groupCalEvents) {
+function renderGroupCalHelper(indCalEvents, groupCal) {
+  let groupCalEvents = groupCal.getEvents();
   var combinedCal = groupCalEvents.concat(indCalEvents);
   $('#calendar-group').fullCalendar( 'removeEvents');
   $('#calendar-group').fullCalendar( 'renderEvents', combinedCal, true);
 }
 
-function renderIndCal(indCalEvents, groupCalEvents) {
+function renderIndCal(indCalEvents, groupCal) {
   $("#calendar-ind").fullCalendar('render');
   $('#calendar-ind').fullCalendar( 'removeEvents');
   $('#calendar-ind').fullCalendar( 'renderEvents', indCalEvents, true);
-  renderGroupCal(indCalEvents, groupCalEvents);
+  renderGroupCal(indCalEvents, groupCal);
 }
 
 
@@ -37858,9 +37956,9 @@ function renderIndCal(indCalEvents, groupCalEvents) {
 	var authorizeButton = document.getElementById('authorize-button');
 	var signoutButton = document.getElementById('signout-button');
 
-	function initOauth(startDate, endDate, groupCalEvents) {
+	function initOauth(groupCal) {
 	  gapi.load('client:auth2', function() {
-      initClient(startDate, endDate, groupCalEvents);
+      initClient(groupCal);
     });
 	}
 
@@ -37868,7 +37966,7 @@ function renderIndCal(indCalEvents, groupCalEvents) {
 	 *  Initializes the API client library and sets up sign-in state
 	 *  listeners.
 	 */
-	function initClient(startDate, endDate, groupCalEvents) {
+	function initClient(groupCal) {
 	  gapi.client.init({
 	    discoveryDocs: DISCOVERY_DOCS,
 	    clientId: CLIENT_ID,
@@ -37876,11 +37974,11 @@ function renderIndCal(indCalEvents, groupCalEvents) {
     }).then(function () {
       // Listen for sign-in state changes.
       gapi.auth2.getAuthInstance().isSignedIn.listen(function(signinStatus) {
-        updateSigninStatus(signinStatus, startDate, endDate, groupCalEvents);
+        updateSigninStatus(signinStatus, groupCal);
       });
 
       // Handle the initial sign-in state.
-      updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get(), startDate, endDate, groupCalEvents);
+      updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get(), groupCal);
       authorizeButton.onclick = handleAuthClick;
       signoutButton.onclick = handleSignoutClick;
 	  });
@@ -37892,12 +37990,11 @@ function renderIndCal(indCalEvents, groupCalEvents) {
 	 */
 
 
-function updateSigninStatus(isSignedIn, startDate, endDate, groupCalEvents) {
+function updateSigninStatus(isSignedIn, groupCal) {
   if (isSignedIn) {
     authorizeButton.style.display = 'none';
     signoutButton.style.display = 'block';
-    parseGCal(startDate, endDate, groupCalEvents).then(function(event_list) {
-      //if you re-authorize, removes all current events
+    parseGCal(groupCal).then(function(event_list) {
       $('#calendar-ind').fullCalendar( 'removeEvents');
       $('#calendar-ind').fullCalendar( 'renderEvents', event_list, true);
     });
@@ -37932,4 +38029,4 @@ function updateSigninStatus(isSignedIn, startDate, endDate, groupCalEvents) {
 	  gapi.auth2.getAuthInstance().signOut();
 	}
 
-},{"../../node_modules/bootstrap":1,"../../node_modules/fullcalendar":2,"../../node_modules/moment":4,"../../node_modules/rainbowvis.js":6,"./Timeslot.js":7,"jquery":3}]},{},[8]);
+},{"../../helpers/utils":1,"../../node_modules/bootstrap":2,"../../node_modules/fullcalendar":3,"../../node_modules/moment":5,"./GroupCalendar.js":8,"./Timeslot.js":9,"jquery":4}]},{},[10]);
