@@ -1,11 +1,13 @@
 const Rainbow = require('../../node_modules/rainbowvis.js');
 const Utils = require('../../helpers/utils');
 
-function GroupCalendar(id, calendar, size, startDate, endDate) {
+function GroupCalendar(id, calendar, size, startDate, endDate, minTime, maxTime) {
   this.id = id;
   this.size = size;
   this.startDate = startDate;
   this.endDate = endDate;
+  this.minTime = minTime;
+  this.maxTime = maxTime;
 
   this.calFull = calendar; // Dictionary of start time to calendar event object for full group (including current user)
   this.calCurrentUserRemoved; // Dictionary of start time to calendar event object for  group excluding current user

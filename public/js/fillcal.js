@@ -17,7 +17,7 @@ $(document).ready(function() {
   window.onbeforeunload = confirmExit;
 
   getGroup(groupLink, function(group) { // groupLink defined in fillcal.jade script tag
-    let groupCalendar = new GroupCalendar(group._id, JSON.parse(group.calendar), group.size, group.startDate, group.endDate);
+    let groupCalendar = new GroupCalendar(group._id, JSON.parse(group.calendar), group.size, group.startDate, group.endDate, group.minTime, group.maxTime);
     initCalendars(groupCalendar);
     let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
     renderGroupCal(indCalEvents, groupCalendar);
@@ -38,6 +38,8 @@ $(document).ready(function() {
 function initCalendars(groupCalendar) {
   var calInd = $('#calendar-ind').fullCalendar({
     defaultView: 'agenda',
+    minTime: groupCalendar.minTime,
+    maxTime: groupCalendar.maxTime,
     selectable: true,   // Users can highlight a timeslot by clicking and dragging
     editable: true,
     unselectAuto: false, // Clicking elsewhere won't cause current selection to be cleared
@@ -81,6 +83,8 @@ function initCalendars(groupCalendar) {
 
   $('#calendar-group').fullCalendar({
     defaultView: 'agenda',
+    minTime: groupCalendar.minTime,
+    maxTime: groupCalendar.maxTime,
     displayEventTime : false,
     visibleRange: {
       start: moment(groupCalendar.startDate).startOf("day"),

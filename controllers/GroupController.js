@@ -10,6 +10,8 @@ router.post('/', function(req, res) {
     req.body.name,
     req.body.startDate,
     req.body.endDate,
+    req.body.minTime,
+    req.body.maxTime,
     Utils.generateUniqueID(),
     function(response) {
       res.send(response);
@@ -17,11 +19,13 @@ router.post('/', function(req, res) {
   );
 });
 
-function saveGroup(name, startDate, endDate, link, callback) {
+function saveGroup(name, startDate, endDate, minTime, maxTime, link, callback) {
   var newGroup = new Groups({
     name: name,
     startDate: startDate,
     endDate: endDate,
+    minTime: minTime,
+    maxTime: maxTime,
     link: link,
     calendar: "{}",
     size: 0,

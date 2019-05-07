@@ -37383,11 +37383,13 @@ if (typeof module !== 'undefined') {
 const Rainbow = require('../../node_modules/rainbowvis.js');
 const Utils = require('../../helpers/utils');
 
-function GroupCalendar(id, calendar, size, startDate, endDate) {
+function GroupCalendar(id, calendar, size, startDate, endDate, minTime, maxTime) {
   this.id = id;
   this.size = size;
   this.startDate = startDate;
   this.endDate = endDate;
+  this.minTime = minTime;
+  this.maxTime = maxTime;
 
   this.calFull = calendar; // Dictionary of start time to calendar event object for full group (including current user)
   this.calCurrentUserRemoved; // Dictionary of start time to calendar event object for  group excluding current user
@@ -37527,7 +37529,7 @@ $(document).ready(function() {
   window.onbeforeunload = confirmExit;
 
   getGroup(groupLink, function(group) { // groupLink defined in fillcal.jade script tag
-    let groupCalendar = new GroupCalendar(group._id, JSON.parse(group.calendar), group.size, group.startDate, group.endDate);
+    let groupCalendar = new GroupCalendar(group._id, JSON.parse(group.calendar), group.size, group.startDate, group.endDate, group.minTime, group.maxTime);
     initCalendars(groupCalendar);
     let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
     renderGroupCal(indCalEvents, groupCalendar);
@@ -37548,6 +37550,8 @@ $(document).ready(function() {
 function initCalendars(groupCalendar) {
   var calInd = $('#calendar-ind').fullCalendar({
     defaultView: 'agenda',
+    minTime: groupCalendar.minTime,
+    maxTime: groupCalendar.maxTime,
     selectable: true,   // Users can highlight a timeslot by clicking and dragging
     editable: true,
     unselectAuto: false, // Clicking elsewhere won't cause current selection to be cleared
@@ -37591,6 +37595,8 @@ function initCalendars(groupCalendar) {
 
   $('#calendar-group').fullCalendar({
     defaultView: 'agenda',
+    minTime: groupCalendar.minTime,
+    maxTime: groupCalendar.maxTime,
     displayEventTime : false,
     visibleRange: {
       start: moment(groupCalendar.startDate).startOf("day"),
