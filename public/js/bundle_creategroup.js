@@ -30119,12 +30119,12 @@ $(document).ready(function() {
   var endDate = "";
   const picker1 = datepicker('.date-picker-1', {
     onSelect: (instance, date) => {
-      startDate = moment(date).toISOString();
+      startDate = moment(date);
     }
   });
   const picker2 = datepicker('.date-picker-2', {
     onSelect: (instance, date) => {
-      endDate = moment(date).toISOString();
+      endDate = moment(date);
     }
   });
 
@@ -30145,13 +30145,17 @@ $(document).ready(function() {
 
     if (inputEmpty(startDate, endDate, eventName)) {
       alert("Please fill in all the necessary fields");
+    } else if (invalidDates(startDate, endDate)) {
+      alert("The start date must be earlier than the end date. Please re-select valid dates.");
+    } else if (invalidTimes(startTime, endTime)) {
+      alert("The start time must be earlier than the end time. Please re-select valid times.");
     } else {
       $.post(
         '../groups',
         {
           name: eventName,
-          startDate: startDate,
-          endDate: endDate,
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
           minTime: startTime,
           maxTime: endTime,
         }, function(data, status) {
@@ -30164,6 +30168,14 @@ $(document).ready(function() {
 
 function inputEmpty(startDate, endDate, eventName) {
   return startDate == "" || endDate == "" || eventName == "";
+}
+
+function invalidDates(startDate, endDate) {
+  return startDate.isAfter(endDate);
+}
+
+function invalidTimes(startTime, endTime) {
+  return moment(startTime, ['h:m']).isAfter(moment(endTime, ['h:m']));
 }
 
 },{"../../node_modules/fullcalendar":2,"../../node_modules/js-datepicker":5,"../../node_modules/js-datepicker/dist/datepicker.min.css":4,"../../node_modules/moment":6,"../../node_modules/timepicker":8,"../../node_modules/timepicker/jquery.timepicker.css":7,"jquery":3}]},{},[9]);
