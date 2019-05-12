@@ -37,8 +37,8 @@ $(document).ready(function() {
   $('#time-picker-2').timepicker('setTime', defaultEnd);
 
   // Create new group
-  document.getElementById("create").onclick = function() {
-    var eventName = document.getElementById('inputEventName').value;
+  document.getElementById("create-button").onclick = function() {
+    var eventName = document.getElementById('name-input').value;
     var startTime = moment($('#time-picker-1').timepicker('getTime', new Date())).format('HH:mm');
     var endTime = moment($('#time-picker-2').timepicker('getTime', new Date())).format('HH:mm');
 

@@ -1,60 +1,93 @@
 body {
-     font-family: "Montserrat", serif;
- }
+  font-family: "Montserrat", serif;
+  background-color: #F4EFDC;
+}
 
- #SpecificDates {
-     font-family: monospace;
- }
+.vertical-container {
+  border: 0;
+  display: flex;
+  flex-direction: column;
+}
 
- .vertical-container {
-     border: 0;
-     display: flex;
-     flex-direction: column;
- }
+.horizontal-container {
+  border: 0;
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
 
- .horizontal-container {
-     border: 0;
-     display: flex;
-     flex-direction: row;
- }
+.pane {
+  background-color: white;
+  margin:1em;
+  height: 90%;
+  padding: 2em;
+  width: 45%;
+  border-radius: 6px;
+  border: 1px solid #a09d9d;
+  overflow-x: scroll;
+}
 
- .pane {
-     margin:1em;
-     height: 100vh;
-     padding: 2em;
- }
+.title {
+  font-size: 2.5em;
+  color: #36af23;
+}
 
- .info-pane {
-     width:30%;
-     border: 1px solid black;
-     border-radius: 6px;
-     position: relative;
-     overflow-y: scroll;
- }
+.logo {
+  color: #55A848;
+  margin-left: 2em;
+  font-weight: bold;
+}
 
- .cal-pane {
-     width: 45%;
-     border-radius: 6px;
-     border: 1px solid black;
-     overflow-x: scroll;
- }
+.page-content {
+  background-color: white;
+  margin: 2%;
+  border-radius: 18px;
+  padding: 1em;
+  height: 80vh;
+}
 
- #ind-cal-pane {
-    display:none;
- }
+.input {
+  background-color: #F7F7F7;
+  border-radius: 8px;
+}
 
- .tooltipevent {
-      width:100px;height:100px;background:#ccc;position:absolute;z-index:10001;
- }
 
- .popup {
-   display: none;
-   position: fixed;
-   top: 50%;
-   left: 50%;
-   background-color: #ff0000;
-   /* margin: 15% auto; /* 15% from the top and centered */ */
-   /* padding: 20px; */
-   /* border: 1px solid #888; */
-   /* width: 80%; /* Could be more or less, depending on screen size */ */
- }
+
+
+
+
+.info-pane {
+  width:30%;
+  border: 1px solid black;
+  border-radius: 6px;
+  position: relative;
+  overflow-y: scroll;
+}
+
+#ind-cal-pane {
+  display:none;
+}
+
+.tooltipevent {
+  width:100px;
+  height:100px;
+  background:#ccc;
+  position:absolute;
+  z-index:10001;
+}
+
+.popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  background-color: #ff0000;
+  /* margin: 15% auto; /* 15% from the top and centered */ */
+  /* padding: 20px; */
+  /* border: 1px solid #888; */
+  /* width: 80%; /* Could be more or less, depending on screen size */ */
+}
+
+#SpecificDates {
+  font-family: monospace;
+}

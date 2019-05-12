@@ -1,26 +1,30 @@
 extends layout
 
+block extrascripts
+      link(rel='stylesheet', href='../public/css/creategroup.css')
+
 block content
-  .container
-    .pane.cal-pane
-      h1 What is the name of your event?
-      input#inputEventName(type='text', placeholder='Event Name')
-      h1 What are the dates of your event?
-      h3 Start Date
-      input(type = "text" class = "date-picker-1")
-      h3 End Date
-      input(type = "text" class = "date-picker-2")
-      h1 What are viable times for the event?
-      input#time-picker-1(type = "text")
-      p -
-      input#time-picker-2(type = "text")
-      br
-      button#create Create Event
-      br
-      br
-      br
-      button#test Test Button
-    .pane.cal-pane
-      #calendar
+  .vertical-container.page-content
+    h1.logo MeetMe
+    .horizontal-container
+      .pane#new-group-pane
+        h1.title Create New Event
+        hr
+        h1 What is the name of your event?
+        input.input#name-input(type='text')
+        h1 What are the potential dates for your event?
+        div.input-row
+          input.input.date-picker.date-picker-1(type = "text")
+          h3.intermediary-date-text to
+          input.input.date-picker.date-picker-2(type = "text")
+        h1 What are viable times for the event?
+        div.input-row
+          input.input.date-picker#time-picker-1(type = "text")
+          h3.intermediary-date-text to
+          input.input.date-picker#time-picker-2(type = "text")
+        br
+        button#create-button Create
+      .pane
+        #calendar
 
   script(src='../public/js/bundle_creategroup.js')
