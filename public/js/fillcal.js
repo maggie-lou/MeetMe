@@ -50,6 +50,12 @@ function initCalendars(groupCalendar) {
       end: moment(groupCalendar.endDate).add(1, 'days')
     },
 
+    header: {
+      left: 'title',
+      center: '',
+      right: '',
+    },
+
     // Newly dragged events will persist
     select: function(start, end, allDay) {
       calInd.fullCalendar('renderEvent',
@@ -89,6 +95,12 @@ function initCalendars(groupCalendar) {
     visibleRange: {
       start: moment(groupCalendar.startDate).startOf("day"),
       end: moment(groupCalendar.endDate).add(1, 'days')
+    },
+
+    header: {
+      left: 'title',
+      center: '',
+      right: '',
     },
 
     // Hovering on event will show names of busy people
