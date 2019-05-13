@@ -1,0 +1,58 @@
+.padded-text {
+  margin-top: 2px;
+}
+
+#share-box {
+  height: 5%;
+  box-sizing: border-box;
+  padding-top:15px;
+  overflow: hidden;
+}
+
+#link {
+  color: green;
+  text-decoration: underline dotted;
+  font-weight: bolder;
+  margin-left: 2%;
+}
+
+#copy-button {
+  height: 30px;
+  margin-left: 2%;
+  border-radius: 8px;
+  padding: 0px 20px;
+  background-color: #d2ecd2;
+  color: dimgray;
+  font-weight: bold;
+}
+
+.register-title {
+  text-align: center;
+  color: green;
+}
+
+#group-cal-title {
+  color: #23a9b7;
+}
+
+#inputUsername, #inputPassword {
+  width: 80%;
+  margin-left: 10%;
+}
+
+#register-button, #sign-in-button {
+  margin-left: 35%;
+}
+
+#sign-in, #sign-in-text, #sign-in-button {
+  display: none;
+}
+
+#sign-in-text, #register-text {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #757575;
+  border:none;
+  font: inherit;
+  cursor: pointer;
+}

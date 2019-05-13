@@ -1,25 +1,41 @@
 extends layout
 
+block extrascripts
+      link(rel='stylesheet', href='../public/css/fillcal.css')
+
 block content
-  .popup#savedPopup
-    <p>Your calendar has been saved!</p>
-  .horizontal-container
-    .pane.cal-pane
-      .vertical-container#ind-cal-pane
-        #calendar-ind
-        button#authorize-button Authorize
-        button#signout-button Sign Out
-        button#btnSave Save Calendar
-      .vertical-container#register-pane
-        h1 Register / Sign In
-        input#inputUsername(type='text', placeholder='Name')
-        br
-        input#inputPassword(type='text', placeholder='Password (Optional)')
-        br
-        br
-        button#btnRegister Register
-    .pane.cal-pane#group-cal-pane
-      #calendar-group
+  .vertical-container.page-content
+    .popup#savedPopup
+      <p>Your calendar has been saved!</p>
+    h1.logo MeetMe
+    .pane.horizontal-container#share-box
+      p.text.padded-text Invite Participants: 
+      p.text.padded-text#link 
+      button#copy-button Copy Link
+    .horizontal-container
+      .pane.half-pane
+        .vertical-container#ind-cal-pane
+          h1.title Individual Calendar
+          h3 Block out times you are unavailable to meet.
+          #calendar-ind
+          button#authorize-button Authorize
+          button#signout-button Sign Out
+          button#btnSave Save Calendar
+        .vertical-container#register-pane
+          h1.register-title#register Register
+          h1.register-title#sign-in Sign In
+          button#register-text Existing user? Sign in.
+          button#sign-in-text New user? Register.
+          input.input#inputUsername(type='text', placeholder='Name')
+          br
+          input.input#inputPassword(type='text', placeholder='Password (Optional)')
+          br
+          br
+          button.button#register-button Register
+          button.button#sign-in-button Sign In
+      .pane.half-pane#group-cal-pane
+        h1.title#group-cal-title Group Availability
+        #calendar-group
 
   script.
     var groupLink = "#{groupLink}";

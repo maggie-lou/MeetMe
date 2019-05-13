@@ -7,7 +7,7 @@ block content
   .vertical-container.page-content
     h1.logo MeetMe
     .horizontal-container
-      .pane#new-group-pane
+      .pane.half-pane#new-group-pane
         h1.title Create New Event
         hr
         h1 What is the name of your event?
@@ -23,8 +23,8 @@ block content
           h3.intermediary-date-text to
           input.input.date-picker#time-picker-2(type = "text")
         br
-        button#create-button Create
-      .pane
+        button.button#create-button Create
+      .pane.half-pane
         #calendar
 
   script(src='../public/js/bundle_creategroup.js')

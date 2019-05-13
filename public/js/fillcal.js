@@ -16,6 +16,9 @@ $(document).ready(function() {
   // Warn user before leaving page
   window.onbeforeunload = confirmExit;
 
+  // Set invitation link
+  document.getElementById("link").innerHTML = "www.meetme.com/" + groupLink;
+
   getGroup(groupLink, function(group) { // groupLink defined in fillcal.jade script tag
     let groupCalendar = new GroupCalendar(group._id, JSON.parse(group.calendar), group.size, group.startDate, group.endDate, group.minTime, group.maxTime);
     initCalendars(groupCalendar);
@@ -23,13 +26,25 @@ $(document).ready(function() {
     renderGroupCal(indCalEvents, groupCalendar);
 
     // Initialize click handlers
-    $('#btnRegister').on('click', function() {
+    $('#copy-button').on('click', function() {
+      copy();
+    });
+    $('#register-button').on('click', function() {
+      registerUser(groupCalendar);
+    });
+    $('#sign-in-button').on('click', function() {
       registerUser(groupCalendar);
     });
     $('#btnSave').on('click', function() {
       saveCalendars(groupCalendar);
     });
     $('#calendar-ind').on('click', function() {
+    });
+    $('#register-text').on('click', function() {
+      switchSignIn();
+    });
+    $('#sign-in-text').on('click', function() {
+      switchRegister();
     });
 
   });
@@ -44,14 +59,15 @@ function initCalendars(groupCalendar) {
     editable: true,
     unselectAuto: false, // Clicking elsewhere won't cause current selection to be cleared
     displayEventTime : false,
-    eventColor: "tomato",
+    eventColor: "#7bce6e",
+    allDaySlot: false,
     visibleRange: {
       start: moment(groupCalendar.startDate).startOf("day"),
       end: moment(groupCalendar.endDate).add(1, 'days')
     },
 
     header: {
-      left: 'title',
+      left: '',
       center: '',
       right: '',
     },
@@ -92,13 +108,14 @@ function initCalendars(groupCalendar) {
     minTime: groupCalendar.minTime,
     maxTime: groupCalendar.maxTime,
     displayEventTime : false,
+    allDaySlot: false,
     visibleRange: {
       start: moment(groupCalendar.startDate).startOf("day"),
       end: moment(groupCalendar.endDate).add(1, 'days')
     },
 
     header: {
-      left: 'title',
+      left: '',
       center: '',
       right: '',
     },
@@ -133,7 +150,7 @@ function initCalendars(groupCalendar) {
 }
 
 function isIndividualEvent(calEvent) {
-  return calEvent.color == "tomato";
+  return calEvent.color == "#7bce6e";
 }
 
 function confirmExit() {
@@ -261,7 +278,7 @@ function deserializeIndCalEvents(calDict) {
     eventObj.title = timeslot.title;
     eventObj.start = timeslot.startTime;
     eventObj.end = timeslot.endTime;
-    eventObj.color = "tomato";
+    eventObj.color = "#7bce6e";
 
     events.push(eventObj);
   }
@@ -328,6 +345,35 @@ function wrongPassword(statusCode) {
 
 function newUserCreated(statusCode) {
   return statusCode == 201;
+}
+
+function copy() {
+  var tempInput = document.createElement('input');
+  document.body.appendChild(tempInput);
+  tempInput.value = document.getElementById('link').innerHTML;
+  tempInput.select();
+  document.execCommand('copy');
+  tempInput.remove();
+}
+
+function switchRegister() {
+  document.getElementById('register').style.display = 'block';
+  document.getElementById('register-text').style.display = 'block';
+  document.getElementById('register-button').style.display = 'block';
+
+  document.getElementById('sign-in').style.display = 'none';
+  document.getElementById('sign-in-text').style.display = 'none';
+  document.getElementById('sign-in-button').style.display = 'none';
+}
+
+function switchSignIn() {
+  document.getElementById('register').style.display = 'none';
+  document.getElementById('register-text').style.display = 'none';
+  document.getElementById('register-button').style.display = 'none';
+
+  document.getElementById('sign-in').style.display = 'block';
+  document.getElementById('sign-in-text').style.display = 'block';
+  document.getElementById('sign-in-button').style.display = 'block';
 }
 
 // Parse gCal events to FullCalendar events
@@ -416,7 +462,7 @@ function parseClientEvents(events) {
 
     eventObj.start = events[i].start._i;
     eventObj.end = events[i].end._i;
-    eventObj.color = "tomato";
+    eventObj.color = "#7bce6e";
     parsedCal.push(eventObj);
   }
 

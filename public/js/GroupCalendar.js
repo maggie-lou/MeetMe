@@ -39,7 +39,7 @@ function deserializeCalendar(calDict, groupSize) {
   if (groupSize > 0) {
     var rainbow = new Rainbow();
     rainbow.setNumberRange(0, groupSize);
-    rainbow.setSpectrum('lightskyblue', 'navy');
+    rainbow.setSpectrum('#9eeaff', '#1c7c96');
 
     for (var key in calDict) {
       // Make Event Object

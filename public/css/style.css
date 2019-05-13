@@ -21,14 +21,17 @@ body {
   margin:1em;
   height: 90%;
   padding: 2em;
-  width: 45%;
   border-radius: 6px;
   border: 1px solid #a09d9d;
   overflow-x: scroll;
 }
 
+.half-pane {
+  width: 50%;
+}
+
 .title {
-  font-size: 2.5em;
+  font-size: 2em;
   color: #36af23;
 }
 
@@ -43,12 +46,28 @@ body {
   margin: 2%;
   border-radius: 18px;
   padding: 1em;
-  height: 80vh;
+  height: 85vh;
 }
 
 .input {
   background-color: #F7F7F7;
   border-radius: 8px;
+}
+
+.text {
+  margin: 0;
+}
+
+.button {
+    background-color: #6dbd60;
+    border-radius: 10px;
+    color: white;
+    height: 6%;
+    padding: 15px;
+    font-weight: bold;
+    margin-top: 10px;
+    font-size: 1.3em;
+    width: 25%;
 }
 
 

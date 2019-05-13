@@ -11,22 +11,8 @@
   margin: 0px 18px;
 }
 
-
-
 #name-input {
   width: 90%;
-}
-
-#create-button {
-    background-color: #78D06A;
-    border-radius: 10px;
-    color: white;
-    height: 6%;
-    padding: 15px;
-    font-weight: bold;
-    margin-top: 10px;
-    font-size: 1.3em;
-    width: 25%;
 }
 
 .date-picker-2 {

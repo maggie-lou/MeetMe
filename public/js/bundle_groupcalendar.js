@@ -1,4 +1,14 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+exports.generateUniqueID = () => {
+  // Convert random number to base 36 (numbers + letters) and grab first 9 characters after the decimal
+  return '_' + Math.random().toString(36).substr(2, 9);
+}
+
+exports.clone = function clone(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+},{}],2:[function(require,module,exports){
 /*
 RainbowVis-JS 
 Released under Eclipse Public License - v 1.0
@@ -308,55 +318,74 @@ if (typeof module !== 'undefined') {
   module.exports = Rainbow;
 }
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 const Rainbow = require('../../node_modules/rainbowvis.js');
+const Utils = require('../../helpers/utils');
 
-function GroupCalendar(id, calendar, size, startDate, endDate) {
+function GroupCalendar(id, calendar, size, startDate, endDate, minTime, maxTime) {
   this.id = id;
-  this.calendar = calendar; // Dictionary of start time to calendar event object
   this.size = size;
   this.startDate = startDate;
   this.endDate = endDate;
+  this.minTime = minTime;
+  this.maxTime = maxTime;
 
-  this.events = null; // List of FullCalendar events, parsed from the calendar dictionary
+  this.calFull = calendar; // Dictionary of start time to calendar event object for full group (including current user)
+  this.calCurrentUserRemoved = Utils.clone(calendar); // Dictionary of start time to calendar event object for  group excluding current user
+  this.fullCalActive = true;
+
+  this.eventsFull = null; // List of FullCalendar events, parsed from current calendar dictionary
+  this.eventsCurrentUserRemoved = null;
 }
 
-// Lazily computes and caches list of FullCalendar events
+// Lazily computes and caches list of FullCalendar events for active group calendar
 GroupCalendar.prototype.getEvents = function getEvents() {
-  if (this.events == null) {
-    let events = [];
-
-    if (this.size > 0) {
-      var rainbow = new Rainbow();
-      rainbow.setNumberRange(0, this.size);
-      rainbow.setSpectrum('lightskyblue', 'navy');
-
-      for (var key in this.calendar) {
-        // Make Event Object
-        var timeslot = this.calendar[key];
-
-        var eventObj = {};
-        eventObj.title = timeslot.title;
-        eventObj.start = timeslot.startTime;
-        eventObj.end = timeslot.endTime;
-        eventObj.color = "#" + rainbow.colourAt(timeslot.busyPeople.length);
-
-        events.push(eventObj);
-      }
-    }
-
-    this.events = events;
+  let events;
+  if (this.fullCalActive) {
+    if (this.eventsFull != null) return this.eventsFull;
+    events = deserializeCalendar(this.calFull, this.size);
+    this.eventsFull = events;
+  } else {
+    if (this.eventsCurrentUserRemoved != null) return this.eventsCurrentUserRemoved;
+    events = deserializeCalendar(this.calCurrentUserRemoved, this.size);
+    this.eventsCurrentUserRemoved = events;
   }
-  return this.events;
-};
+  return events;
+}
+
+// Transforms dictionary of calendar events to array of FullCalendar events
+function deserializeCalendar(calDict, groupSize) {
+  let events = [];
+
+  if (groupSize > 0) {
+    var rainbow = new Rainbow();
+    rainbow.setNumberRange(0, groupSize);
+    rainbow.setSpectrum('#9eeaff', '#1c7c96');
+
+    for (var key in calDict) {
+      // Make Event Object
+      var timeslot = calDict[key];
+
+      var eventObj = {};
+      eventObj.title = timeslot.title;
+      eventObj.start = timeslot.startTime;
+      eventObj.end = timeslot.endTime;
+      eventObj.color = "#" + rainbow.colourAt(timeslot.busyPeople.length);
+
+      events.push(eventObj);
+    }
+  }
+  return events;
+}
+
 
 // Removes given user's events from the group calendar.
 // Used so that the group calendar events can be displayed separately from the individual events.
 GroupCalendar.prototype.removeUser = function removeUser(username) {
   let timesToRemove = []
 
-  for (var time in this.calendar) {
-    let calEvent = this.calendar[time];
+  for (var time in this.calCurrentUserRemoved) {
+    let calEvent = this.calCurrentUserRemoved[time];
     let busyPeople = calEvent.busyPeople;
     if ($.inArray(username, busyPeople) != -1) {
       if (busyPeople.length == 1) {
@@ -367,20 +396,41 @@ GroupCalendar.prototype.removeUser = function removeUser(username) {
           return a;
         });
         calEvent.busyPeople = busyPeople;
-        this.calendar[time] = calEvent;
+        this.calCurrentUserRemoved[time] = calEvent;
       }
     }
   }
 
   for (var i in timesToRemove) {
     let time = timesToRemove[i];
-    delete this.calendar[time];
+    delete this.calCurrentUserRemoved[time];
   }
+}
 
-  this.size--;
-  this.events = null; // Data changed, so events must be re-computed in getter
+GroupCalendar.prototype.updateFullCal = function updateFullCal(cal) {
+  this.calFull = cal;
+  this.eventsFull = null;
+}
+
+GroupCalendar.prototype.getActiveCal = function getActiveCal() {
+  if (this.fullCalActive) return this.calFull;
+  return this.calCurrentUserRemoved;
+}
+
+GroupCalendar.prototype.setActiveCalFull = function setActiveCalFull() {
+  if (!this.fullCalActive) {
+    this.fullCalActive = true;
+    this.size++; // Include current user in group size
+  }
+}
+
+GroupCalendar.prototype.setActiveCalPartial = function setActiveCalPartial() {
+  if (this.fullCalActive) {
+    this.fullCalActive = false;
+    this.size--; // Exclude current user from group size
+  }
 }
 
 module.exports = GroupCalendar;
 
-},{"../../node_modules/rainbowvis.js":1}]},{},[2]);
+},{"../../helpers/utils":1,"../../node_modules/rainbowvis.js":2}]},{},[3]);
