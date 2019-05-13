@@ -10,7 +10,7 @@ function GroupCalendar(id, calendar, size, startDate, endDate, minTime, maxTime)
   this.maxTime = maxTime;
 
   this.calFull = calendar; // Dictionary of start time to calendar event object for full group (including current user)
-  this.calCurrentUserRemoved; // Dictionary of start time to calendar event object for  group excluding current user
+  this.calCurrentUserRemoved = Utils.clone(calendar); // Dictionary of start time to calendar event object for  group excluding current user
   this.fullCalActive = true;
 
   this.eventsFull = null; // List of FullCalendar events, parsed from current calendar dictionary
@@ -61,7 +61,6 @@ function deserializeCalendar(calDict, groupSize) {
 // Removes given user's events from the group calendar.
 // Used so that the group calendar events can be displayed separately from the individual events.
 GroupCalendar.prototype.removeUser = function removeUser(username) {
-  this.calCurrentUserRemoved = Utils.clone(this.calFull);
   let timesToRemove = []
 
   for (var time in this.calCurrentUserRemoved) {

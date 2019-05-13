@@ -324,9 +324,9 @@ function registerUser(groupCal) {
           });
         } else {
           groupCal.removeUser(name);
-          groupCal.setActiveCalPartial();
-          renderGroupCal(indCalEvents, groupCal);
         }
+        groupCal.setActiveCalPartial();
+        renderGroupCal(indCalEvents, groupCal);
       }).fail(function(data, textStatus) {
         if (wrongPassword(data.status)) {
           alert("Wrong Password.");
