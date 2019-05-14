@@ -15,6 +15,27 @@ function GroupCalendar(id, calendar, size, startDate, endDate, minTime, maxTime)
 
   this.eventsFull = null; // List of FullCalendar events, parsed from current calendar dictionary
   this.eventsCurrentUserRemoved = null;
+
+  this.participants = null;
+}
+
+// Returns all current users in a group
+GroupCalendar.prototype.getParticipants = function getParticipants(callback) {
+  if (this.participants != null) {
+    callback(this.participants);
+  } else {
+    let calendar = this;
+    $.ajax({
+      type: 'GET',
+      url: 'users/group/' + this.id,
+      dataType: 'JSON',
+      success: function(users) {
+        let usernames = users.map(user => user.username);
+        calendar.participants = usernames;
+        callback(this.participants);
+      }
+    });
+  }
 }
 
 // Lazily computes and caches list of FullCalendar events for active group calendar

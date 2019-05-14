@@ -81,4 +81,18 @@ router.patch('/:id/cal', function(req, res) {
 		}
 	});
 });
+
+// Returns all users from a specific group
+router.get('/group/:id', function(req, res) {
+	Users.find({ groupID: req.params.id }, 'username', function (err, users) {
+    if (err) {
+      res.status(500).json({ error: err });
+    } else {
+      console.log("Retrieving all users in group " + req.params.id);
+      console.log(users);
+			res.send(users);
+		}
+	});
+});
+
 module.exports = router;

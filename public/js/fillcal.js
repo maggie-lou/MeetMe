@@ -125,21 +125,40 @@ function initCalendars(groupCalendar) {
       if (!isIndividualEvent(calEvent)) {
         let activeCal = groupCalendar.getActiveCal();
         let busyPeople = activeCal[calEvent.start.format()].busyPeople;
-        var tooltip = '<div class="tooltipevent">' + busyPeople + '</div>';
-        var $tooltip = $(tooltip).appendTo('body');
+        groupCalendar.getParticipants(function(allParticipants) {
+          let freePeople = Utils.difference(allParticipants, busyPeople);
+          var tooltip =
+            `<div class="tooltipevent">
+          <p>12:30 - 1:00   5/8 Unavailable</p>
+          <div class="column">
+            <p> Unavailable </p>
+            <div id = "unavailable">
+            </div>
+          </div>
+          <div class="column">
+            <p> Available </p>
+            <div id = "available">
+            </div>
+          </div>
+          </div>`;
 
-        $(this).mouseover(function(e) {
-          $(this).css('z-index', 10000);
-          $tooltip.fadeIn('500');
-          $tooltip.fadeTo('10', 1.9);
-        }).mousemove(function(e) {
-          $tooltip.css('top', e.pageY + 10);
-          $tooltip.css('left', e.pageX + 20);
+          var $tooltip = $(tooltip).appendTo('body');
+          document.getElementById('unavailable').appendChild(Utils.makeUL(busyPeople));
+          document.getElementById('available').appendChild(Utils.makeUL(freePeople));
+
+          $(this).mouseover(function(e) {
+            $(this).css('z-index', 10000);
+            $tooltip.fadeIn('500');
+            $tooltip.fadeTo('10', 1.9);
+          }).mousemove(function(e) {
+            $tooltip.css('top', e.pageY + 10);
+            $tooltip.css('left', e.pageX + 20);
+          });
         });
       }
     },
 
-    // Remove busy people overview when hovering ends
+    // Remove tooltip when hovering ends
     eventMouseout: function(calEvent, jsEvent) {
       $(this).css('z-index', 8);
       $('.tooltipevent').remove();

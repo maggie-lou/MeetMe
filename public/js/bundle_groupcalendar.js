@@ -8,6 +8,22 @@ exports.clone = function clone(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
 
+exports.makeUL = function makeUL(arr) {
+  var list = document.createElement('ul');
+
+  for (var i = 0; i < arr.length; i++) {
+    var item = document.createElement('li');
+    item.appendChild(document.createTextNode(arr[i]));
+    list.appendChild(item);
+  }
+
+  return list;
+}
+
+exports.difference = function difference(arr1, arr2) {
+  return arr1.filter(x => !arr2.includes(x));
+}
+
 },{}],2:[function(require,module,exports){
 /*
 RainbowVis-JS 
@@ -336,6 +352,27 @@ function GroupCalendar(id, calendar, size, startDate, endDate, minTime, maxTime)
 
   this.eventsFull = null; // List of FullCalendar events, parsed from current calendar dictionary
   this.eventsCurrentUserRemoved = null;
+
+  this.participants = null;
+}
+
+// Returns all current users in a group
+GroupCalendar.prototype.getParticipants = function getParticipants(callback) {
+  if (this.participants != null) {
+    callback(this.participants);
+  } else {
+    let calendar = this;
+    $.ajax({
+      type: 'GET',
+      url: 'users/group/' + this.id,
+      dataType: 'JSON',
+      success: function(users) {
+        let usernames = users.map(user => user.username);
+        calendar.participants = usernames;
+        callback(this.participants);
+      }
+    });
+  }
 }
 
 // Lazily computes and caches list of FullCalendar events for active group calendar
