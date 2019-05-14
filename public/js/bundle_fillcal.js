@@ -37675,9 +37675,10 @@ function initCalendars(groupCalendar) {
         let busyPeople = activeCal[calEvent.start.format()].busyPeople;
         groupCalendar.getParticipants(function(allParticipants) {
           let freePeople = Utils.difference(allParticipants, busyPeople);
+          let unavailable = busyPeople.length.toString() + "/" + allParticipants.length.toString();
           var tooltip =
             `<div class="tooltipevent">
-          <p>12:30 - 1:00   5/8 Unavailable</p>
+          <p>${moment(calEvent.start).format('h:mm')} - ${moment(calEvent.end).format('h:mm')} ${unavailable} Unavailable</p>
           <div class="column">
             <p> Unavailable </p>
             <div id = "unavailable">
