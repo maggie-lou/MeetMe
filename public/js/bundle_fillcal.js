@@ -37678,17 +37678,22 @@ function initCalendars(groupCalendar) {
           let unavailable = busyPeople.length.toString() + "/" + allParticipants.length.toString();
           var tooltip =
             `<div class="tooltipevent">
-          <p>${moment(calEvent.start).format('h:mm')} - ${moment(calEvent.end).format('h:mm')} ${unavailable} Unavailable</p>
-          <div class="column">
-            <p> Unavailable </p>
-            <div id = "unavailable">
+             <div class="tooltip-header">
+              <p class = "inline" id = "time">${moment(calEvent.start).format('h:mm')} - ${moment(calEvent.end).format('h:mm')}</p>
+              <p class = "inline" id = "per-unavailable">${unavailable} Unavailable</p>
             </div>
-          </div>
-          <div class="column">
-            <p> Available </p>
-            <div id = "available">
+            <div class = "tooltip-content">
+                <div class="column">
+                <p> Unavailable </p>
+                <div id = "unavailable">
+                </div>
+              </div>
+              <div class="column">
+                <p> Available </p>
+                <div id = "available">
+                </div>
+              </div>
             </div>
-          </div>
           </div>`;
 
           var $tooltip = $(tooltip).appendTo('body');

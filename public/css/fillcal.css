@@ -56,3 +56,16 @@
   font: inherit;
   cursor: pointer;
 }
+
+#per-unavailable {
+  color: #da3030;
+  margin-left: 30px
+}
+
+#time {
+  text-shadow: 0 0 1px black;
+}
+
+#unavailable, #available {
+  margin-left: 10px;
+}

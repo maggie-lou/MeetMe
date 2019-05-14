@@ -75,6 +75,11 @@ body {
     width: 25%;
 }
 
+.inline {
+  display: inline-block;
+  vertical-align:top;
+}
+
 
 
 
@@ -93,15 +98,24 @@ body {
 }
 
 .tooltipevent {
-  background-color: white;
+  background-color: #eee;
   width: 20%;
+  /* height: 15%; */
   border: 1px solid #a09d9d;
-  overflow-x: scroll;
-  height: 20%;
-  padding: 10px;
+  border-radius: 10px;
+  overflow-x: auto;
   display:none;
   position:absolute;
   z-index:10001;
+}
+
+.tooltip-header {
+  background-color: #8fdf82;
+  padding: 0px 15px;
+}
+
+.tooltip-content {
+  padding: 0px 15px;
 }
 
 .popup {
