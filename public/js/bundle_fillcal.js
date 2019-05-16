@@ -37552,6 +37552,7 @@ const GroupCalendar = require('./GroupCalendar.js');
 const Utils = require('../../helpers/utils');
 const moment = require('../../node_modules/moment');
 const fullCalendar = require('../../node_modules/fullcalendar');
+const Rainbow = require('../../node_modules/rainbowvis.js');
 require('../../node_modules/bootstrap');
 
 var currentUserName;
@@ -37572,6 +37573,7 @@ $(document).ready(function() {
     initCalendars(groupCalendar);
     let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
     renderGroupCal(indCalEvents, groupCalendar);
+    initAvailabilityKey(groupCalendar.size);
 
     // Initialize click handlers
     $('#copy-button').on('click', function() {
@@ -37949,6 +37951,21 @@ function switchSignIn() {
   document.getElementById('sign-in-button').style.display = 'block';
 }
 
+function initAvailabilityKey(groupSize) {
+  if (groupSize > 0) {
+    var rainbow = new Rainbow();
+    rainbow.setNumberRange(0, groupSize);
+    rainbow.setSpectrum('#9eeaff', '#1c7c96');
+    $("#availability-key").append("<td bgcolor= 'white' class = 'key-cell' >&nbsp</td>");
+    for (i=0; i<groupSize; i++) {
+      $("#availability-key").append("<td bgcolor='#" + rainbow.colourAt(i) + "' class = 'key-cell' >&nbsp</td>");
+    }
+  }
+
+  document.getElementById("all-available").innerHTML = `${groupSize}/${groupSize} Available`;
+  document.getElementById("no-available").innerHTML = `0/${groupSize} Available`;
+}
+
 // Parse gCal events to FullCalendar events
 function parseGCal(groupCal) {
   return gapi.client.calendar.events.list({
@@ -38154,4 +38171,4 @@ function updateSigninStatus(isSignedIn, groupCal) {
 	  gapi.auth2.getAuthInstance().signOut();
 	}
 
-},{"../../helpers/utils":1,"../../node_modules/bootstrap":2,"../../node_modules/fullcalendar":3,"../../node_modules/moment":5,"./GroupCalendar.js":8,"./Timeslot.js":9,"jquery":4}]},{},[10]);
+},{"../../helpers/utils":1,"../../node_modules/bootstrap":2,"../../node_modules/fullcalendar":3,"../../node_modules/moment":5,"../../node_modules/rainbowvis.js":7,"./GroupCalendar.js":8,"./Timeslot.js":9,"jquery":4}]},{},[10]);
