@@ -30110,8 +30110,13 @@ const fullCalendar = require('../../node_modules/fullcalendar');
 const baseAPI = "localhost:3000/"
 
 $(document).ready(function() {
+
+  var minTime = "9:00";
+  var maxTime = "17:00";
   $('#calendar').fullCalendar({
     defaultView: 'agendaWeek',
+    minTime: minTime,
+    maxTime: maxTime,
   });
 
   // Initialize date/time pickers
@@ -30137,17 +30142,24 @@ $(document).ready(function() {
   $('#time-picker-1').timepicker('setTime', defaultStart);
   $('#time-picker-2').timepicker('setTime', defaultEnd);
 
+  $('#time-picker-1').change(function() {
+    minTime = moment($('#time-picker-1').timepicker('getTime', new Date())).format('HH:mm');
+    $('#calendar').fullCalendar('option', 'minTime', minTime);
+  });
+  $('#time-picker-2').change(function() {
+    maxTime = moment($('#time-picker-2').timepicker('getTime', new Date())).format('HH:mm');
+    $('#calendar').fullCalendar('option', 'maxTime', maxTime);
+  });
+
   // Create new group
   document.getElementById("create-button").onclick = function() {
     var eventName = document.getElementById('name-input').value;
-    var startTime = moment($('#time-picker-1').timepicker('getTime', new Date())).format('HH:mm');
-    var endTime = moment($('#time-picker-2').timepicker('getTime', new Date())).format('HH:mm');
 
     if (inputEmpty(startDate, endDate, eventName)) {
       alert("Please fill in all the necessary fields");
     } else if (invalidDates(startDate, endDate)) {
       alert("The start date must be earlier than the end date. Please re-select valid dates.");
-    } else if (invalidTimes(startTime, endTime)) {
+    } else if (invalidTimes(minTime, maxTime)) {
       alert("The start time must be earlier than the end time. Please re-select valid times.");
     } else {
       $.post(
@@ -30156,8 +30168,8 @@ $(document).ready(function() {
           name: eventName,
           startDate: startDate.toISOString(),
           endDate: endDate.toISOString(),
-          minTime: startTime,
-          maxTime: endTime,
+          minTime: minTime,
+          maxTime: maxTime,
         }, function(data, status) {
           // Route to group calendar page
           window.location.assign('/' + data.link);
