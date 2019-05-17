@@ -16,6 +16,8 @@ $(document).ready(function() {
     defaultView: 'agendaWeek',
     minTime: minTime,
     maxTime: maxTime,
+    allDaySlot: false,
+    contentHeight: 'auto',
   });
 
   // Initialize date/time pickers

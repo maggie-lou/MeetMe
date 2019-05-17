@@ -37594,6 +37594,8 @@ function initCalendars(groupCalendar) {
     defaultView: 'agenda',
     minTime: groupCalendar.minTime,
     maxTime: groupCalendar.maxTime,
+    // Calendar height adjusts to min and max time
+    contentHeight: 'auto',
     selectable: true,   // Users can highlight a timeslot by clicking and dragging
     editable: true,
     unselectAuto: false, // Clicking elsewhere won't cause current selection to be cleared
@@ -37641,6 +37643,7 @@ function initCalendars(groupCalendar) {
     defaultView: 'agenda',
     minTime: groupCalendar.minTime,
     maxTime: groupCalendar.maxTime,
+    contentHeight: 'auto',
     displayEventTime : false,
     allDaySlot: false,
     visibleRange: {
