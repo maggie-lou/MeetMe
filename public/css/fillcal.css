@@ -80,3 +80,14 @@
   min-width: 35px;
   border-top: 1px solid #a09d9d;
 }
+
+#authorize-button {
+  float: right;
+  font-size: 1em;
+  width: auto;
+  text-align: center;
+}
+
+#info {
+  margin: 0;
+}
