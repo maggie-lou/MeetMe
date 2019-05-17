@@ -37558,12 +37558,7 @@ require('../../node_modules/bootstrap');
 var currentUserName;
 var currentUserID;
 
-var unsavedChanges = false;
-
 $(document).ready(function() {
-
-  // Warn user before leaving page
-  window.onbeforeunload = confirmExit;
 
   // Set invitation link
   document.getElementById("link").innerHTML = "www.meetme.com/" + groupLink;
@@ -37571,8 +37566,7 @@ $(document).ready(function() {
   getGroup(groupLink, function(group) { // groupLink defined in fillcal.jade script tag
     let groupCalendar = new GroupCalendar(group._id, JSON.parse(group.calendar), group.size, group.startDate, group.endDate, group.minTime, group.maxTime);
     initCalendars(groupCalendar);
-    let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
-    renderGroupCal(indCalEvents, groupCalendar);
+    renderGroupCal([], groupCalendar);
     initAvailabilityKey(groupCalendar.size);
 
     // Initialize click handlers
@@ -37584,11 +37578,6 @@ $(document).ready(function() {
     });
     $('#sign-in-button').on('click', function() {
       registerUser(groupCalendar);
-    });
-    $('#btnSave').on('click', function() {
-      saveCalendars(groupCalendar);
-    });
-    $('#calendar-ind').on('click', function() {
     });
     $('#register-text').on('click', function() {
       switchSignIn();
@@ -37633,23 +37622,18 @@ function initCalendars(groupCalendar) {
         },
         true
       );
-      groupCalendar.setActiveCalPartial();
-      indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
-      renderGroupCal(indCalEvents, groupCalendar);
+      saveCalendars(groupCalendar);
     },
 
     // Clicking on event will trigger event deletion prompt
     eventClick: function(calEvent, jsEvent, view) {
-      groupCalendar.setActiveCalPartial();
-      $(this).css('border-color', 'red');
+      $(this).css('border-color', 'black');
       setTimeout(deleteEvent, 100, calEvent, this, groupCalendar);
     },
 
     // Editing size of pre-existing event will update group calendar
     eventResize: function(info) {
-      groupCalendar.setActiveCalPartial();
-      let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
-      renderGroupCal(indCalEvents, groupCalendar);
+      saveCalendars(groupCalendar);
     }
   })
 
@@ -37741,8 +37725,7 @@ function deleteEvent(event, cssObject, groupCal) {
   var confirmed = confirm("Do you want to delete this event?");
   if (confirmed) {
     $('#calendar-ind').fullCalendar('removeEvents', event._id);
-    let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
-    renderGroupCal(indCalEvents, groupCal);
+    saveCalendars(groupCal);
   }
   $(cssObject).css('border-color', 'transparent');
 }
@@ -37779,7 +37762,6 @@ function saveCalendars(groupCal) {
       calendar: JSON.stringify(indCalDict),
     },
     success: function(response) {
-      window.unsavedChanges = false;
     }
   }).done(function() {
     $.ajax({
@@ -37790,13 +37772,14 @@ function saveCalendars(groupCal) {
         calendar: JSON.stringify(combinedCalDict),
       },
       success: function() {
-        document.getElementById('savedPopup').style.display = 'block';
-        setTimeout(
-          function() {
-            document.getElementById('savedPopup').style.display = 'none';
-          },
-          2500
-        );
+        // Show popup - calendars saved
+        // document.getElementById('savedPopup').style.display = 'block';
+        // setTimeout(
+        //   function() {
+        //     document.getElementById('savedPopup').style.display = 'none';
+        //   },
+        //   2500
+        // );
 
         // Render combined group calendar
         groupCal.updateFullCal(combinedCalDict);
@@ -37886,7 +37869,7 @@ function registerUser(groupCal) {
 
         let indCalDict = JSON.parse(data.calendar);
         let indCalEvents = deserializeIndCalEvents(indCalDict);
-        renderIndCal(indCalEvents, groupCal);
+        renderIndCal(indCalEvents);
 
         if (newUserCreated(xhr.status)) {
           $.ajax({
@@ -37900,8 +37883,6 @@ function registerUser(groupCal) {
         } else {
           groupCal.removeUser(name);
         }
-        groupCal.setActiveCalPartial();
-        renderGroupCal(indCalEvents, groupCal);
       }).fail(function(data, textStatus) {
         if (wrongPassword(data.status)) {
           alert("Wrong Password.");
@@ -38001,9 +37982,6 @@ function parseGCal(groupCal) {
         event_list.push(eventObj);
       }
     }
-
-    let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
-    renderGroupCal(indCalEvents, groupCal);
     gapi.auth2.getAuthInstance().signOut();
 
     return event_list;
@@ -38061,7 +38039,6 @@ function parseClientEvents(events) {
 
 // Combine individual and group events and render on right calendar
 function renderGroupCal(indCalEvents, groupCal) {
-  window.unsavedChanges = true;
   // Want the newly created event to show up on the individual calendar, before parseClientEvents tries to grab it to display on group calendar
   setTimeout(renderGroupCalHelper, 300, indCalEvents, groupCal);
 }
@@ -38079,7 +38056,6 @@ function renderIndCal(indCalEvents, groupCal) {
   $("#calendar-ind").fullCalendar('render');
   $('#calendar-ind').fullCalendar( 'removeEvents');
   $('#calendar-ind').fullCalendar( 'renderEvents', indCalEvents, true);
-  renderGroupCal(indCalEvents, groupCal);
 }
 
 
@@ -38139,6 +38115,7 @@ function updateSigninStatus(isSignedIn, groupCal) {
     parseGCal(groupCal).then(function(event_list) {
       $('#calendar-ind').fullCalendar( 'removeEvents');
       $('#calendar-ind').fullCalendar( 'renderEvents', event_list, true);
+      saveCalendars(groupCal);
     });
     return true;
   } else {
