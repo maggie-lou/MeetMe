@@ -30126,6 +30126,7 @@ $(document).ready(function() {
       center: '',
       right: ''
     },
+    columnFormat: 'ddd M/D',
   });
 
   initDatepickers();
