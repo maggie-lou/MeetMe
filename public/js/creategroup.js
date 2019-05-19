@@ -9,48 +9,26 @@ const fullCalendar = require('../../node_modules/fullcalendar');
 const baseAPI = "localhost:3000/"
 
 $(document).ready(function() {
-
-  var minTime = "9:00";
-  var maxTime = "17:00";
   $('#calendar').fullCalendar({
-    defaultView: 'agendaWeek',
-    minTime: minTime,
-    maxTime: maxTime,
+    defaultView: 'agenda',
+    minTime: "9:00",
+    maxTime: "17:00",
     allDaySlot: false,
     contentHeight: 'auto',
+    visibleRange: {
+      start: moment(new Date()).startOf('day'),
+      end: moment(new Date()).add(7, 'days')
+    },
+    firstDay: (new Date()).getDay(),
+    header: {
+      left: 'title',
+      center: '',
+      right: ''
+    },
   });
 
-  // Initialize date/time pickers
-  var startDate = "";
-  var endDate = "";
-  const picker1 = datepicker('.date-picker-1', {
-    onSelect: (instance, date) => {
-      startDate = moment(date);
-    }
-  });
-  const picker2 = datepicker('.date-picker-2', {
-    onSelect: (instance, date) => {
-      endDate = moment(date);
-    }
-  });
-
-  $('#time-picker-1').timepicker();
-  $('#time-picker-2').timepicker();
-  let defaultStart = new Date();
-  defaultStart.setHours(9,0,0);
-  let defaultEnd = new Date();
-  defaultEnd.setHours(17,0,0);
-  $('#time-picker-1').timepicker('setTime', defaultStart);
-  $('#time-picker-2').timepicker('setTime', defaultEnd);
-
-  $('#time-picker-1').change(function() {
-    minTime = moment($('#time-picker-1').timepicker('getTime', new Date())).format('HH:mm');
-    $('#calendar').fullCalendar('option', 'minTime', minTime);
-  });
-  $('#time-picker-2').change(function() {
-    maxTime = moment($('#time-picker-2').timepicker('getTime', new Date())).format('HH:mm');
-    $('#calendar').fullCalendar('option', 'maxTime', maxTime);
-  });
+  initDatepickers();
+  initTimepickers();
 
   // Create new group
   document.getElementById("create-button").onclick = function() {
@@ -78,6 +56,58 @@ $(document).ready(function() {
     }
   }
 });
+
+function initTimepickers() {
+  $('#time-picker-1').timepicker();
+  $('#time-picker-2').timepicker();
+
+  let defaultStart = new Date();
+  defaultStart.setHours(9,0,0);
+  let defaultEnd = new Date();
+  defaultEnd.setHours(17,0,0);
+  $('#time-picker-1').timepicker('setTime', defaultStart);
+  $('#time-picker-2').timepicker('setTime', defaultEnd);
+
+  $('#time-picker-1').change(function() {
+    let minTime = moment($('#time-picker-1').timepicker('getTime', new Date())).format('HH:mm');
+    $('#calendar').fullCalendar('option', 'minTime', minTime);
+  });
+  $('#time-picker-2').change(function() {
+    let maxTime = moment($('#time-picker-2').timepicker('getTime', new Date())).format('HH:mm');
+    $('#calendar').fullCalendar('option', 'maxTime', maxTime);
+  });
+
+
+}
+
+function initDatepickers() {
+  let startDate = moment(new Date()).startOf('day');
+  let endDate = startDate.clone();
+  endDate.add(6, 'days');
+
+  const picker1 = datepicker('#date-picker-1', {
+    onSelect: (instance, date) => {
+      startDate = moment(date).startOf('day');
+      $('#calendar').fullCalendar('option', 'visibleRange', {
+        start: startDate,
+        end: endDate.clone().add(1, 'days')
+      });
+      $('#calendar').fullCalendar('option', 'firstDay', startDate.day());
+    }
+  });
+  picker1.setDate(startDate, true);
+
+  const picker2 = datepicker('#date-picker-2', {
+    onSelect: (instance, date) => {
+      endDate = moment(date).startOf('day');
+      $('#calendar').fullCalendar('option', 'visibleRange', {
+        start: startDate,
+        end: endDate.clone().add(1, 'days')
+      });
+    }
+  });
+  picker2.setDate(endDate, true);
+}
 
 function inputEmpty(startDate, endDate, eventName) {
   return startDate == "" || endDate == "" || eventName == "";
