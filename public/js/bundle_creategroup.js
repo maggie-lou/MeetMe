@@ -30142,8 +30142,8 @@ $(document).ready(function() {
           name: eventName,
           startDate: dates.startDate.toISOString(),
           endDate: dates.endDate.toISOString(),
-          minTime: times.minTime,
-          maxTime: times.maxTime,
+          minTime: moment(times.minTime).format("H:mm"),
+          maxTime: moment(times.maxTime).format("H:mm"),
         }, function(data, status) {
           // Route to group calendar page
           window.location.assign('/' + data.link);
