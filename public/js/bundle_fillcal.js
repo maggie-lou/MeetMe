@@ -37465,7 +37465,7 @@ function deserializeCalendar(calDict, groupSize) {
       var timeslot = calDict[key];
 
       var eventObj = {};
-      eventObj.title = timeslot.title;
+      eventObj.title = `${timeslot.busyPeople.length}/ ${groupSize} ✘`
       eventObj.start = timeslot.startTime;
       eventObj.end = timeslot.endTime;
       eventObj.color = "#" + rainbow.colourAt(timeslot.busyPeople.length);
@@ -37655,6 +37655,10 @@ function initCalendars(groupCalendar) {
       left: '',
       center: '',
       right: '',
+    },
+
+    eventRender: function(event, element, view) {
+      $(element).css("padding-left", "10px");
     },
 
     // Hovering on event will show names of busy people

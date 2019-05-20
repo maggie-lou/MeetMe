@@ -109,6 +109,10 @@ function initCalendars(groupCalendar) {
       right: '',
     },
 
+    eventRender: function(event, element, view) {
+      $(element).css("padding-left", "10px");
+    },
+
     // Hovering on event will show names of busy people
     eventMouseover: function(calEvent, jsEvent, view) {
       if (!isIndividualEvent(calEvent)) {

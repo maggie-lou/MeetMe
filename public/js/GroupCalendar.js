@@ -67,7 +67,7 @@ function deserializeCalendar(calDict, groupSize) {
       var timeslot = calDict[key];
 
       var eventObj = {};
-      eventObj.title = timeslot.title;
+      eventObj.title = `${timeslot.busyPeople.length}/ ${groupSize} ✘`
       eventObj.start = timeslot.startTime;
       eventObj.end = timeslot.endTime;
       eventObj.color = "#" + rainbow.colourAt(timeslot.busyPeople.length);
