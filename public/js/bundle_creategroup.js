@@ -30107,50 +30107,43 @@ const timepickerCSS = require('../../node_modules/timepicker/jquery.timepicker.c
 const moment = require('../../node_modules/moment');
 const fullCalendar = require('../../node_modules/fullcalendar');
 
-const baseAPI = "localhost:3000/"
-
 $(document).ready(function() {
-  $('#calendar').fullCalendar({
-    defaultView: 'agenda',
-    minTime: "9:00",
-    maxTime: "17:00",
-    allDaySlot: false,
-    contentHeight: 'auto',
-    visibleRange: {
-      start: moment(new Date()).startOf('day'),
-      end: moment(new Date()).add(7, 'days')
-    },
-    firstDay: (new Date()).getDay(),
-    header: {
-      left: 'title',
-      center: '',
-      right: ''
-    },
-    columnFormat: 'ddd M/D',
-  });
 
-  initDatepickers();
-  initTimepickers();
+  let minTime = new Date();
+  minTime.setHours(9,0,0);
+  let maxTime = new Date();
+  maxTime.setHours(17,0,0);
+  var times = {
+    minTime: minTime,
+    maxTime: maxTime
+  };
 
-  // Create new group
+  let startDate = moment(new Date()).startOf('day');
+  let endDate = startDate.clone();
+  endDate.add(6, 'days');
+  var dates = {
+    startDate: startDate,
+    endDate: endDate
+  };
+
+  initCalendar(dates, times);
+  initDatepickers(dates);
+  initTimepickers(times);
+
   document.getElementById("create-button").onclick = function() {
     var eventName = document.getElementById('name-input').value;
 
-    if (inputEmpty(startDate, endDate, eventName)) {
-      alert("Please fill in all the necessary fields");
-    } else if (invalidDates(startDate, endDate)) {
-      alert("The start date must be earlier than the end date. Please re-select valid dates.");
-    } else if (invalidTimes(minTime, maxTime)) {
-      alert("The start time must be earlier than the end time. Please re-select valid times.");
+    if (inputEmpty(eventName)) {
+      alert("Please fill in an event name.");
     } else {
       $.post(
         '../groups',
         {
           name: eventName,
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString(),
-          minTime: minTime,
-          maxTime: maxTime,
+          startDate: dates.startDate.toISOString(),
+          endDate: dates.endDate.toISOString(),
+          minTime: times.minTime,
+          maxTime: times.maxTime,
         }, function(data, status) {
           // Route to group calendar page
           window.location.assign('/' + data.link);
@@ -30159,60 +30152,102 @@ $(document).ready(function() {
   }
 });
 
-function initTimepickers() {
+function initCalendar(dates, times) {
+  $('#calendar').fullCalendar({
+    defaultView: 'agenda',
+    minTime: moment(times.minTime).format("H:mm"),
+    maxTime: moment(times.maxTime).format("H:mm"),
+    allDaySlot: false,
+    contentHeight: 'auto',
+    visibleRange: {
+      start: dates.startDate,
+      end: dates.endDate.clone().add(1, 'days')
+    },
+    firstDay: dates.startDate.day(),
+    header: {
+      left: '',
+      center: '',
+      right: ''
+    },
+    columnFormat: 'ddd M/D',
+  });
+}
+
+function initTimepickers(times) {
   $('#time-picker-1').timepicker();
   $('#time-picker-2').timepicker();
 
-  let defaultStart = new Date();
-  defaultStart.setHours(9,0,0);
-  let defaultEnd = new Date();
-  defaultEnd.setHours(17,0,0);
-  $('#time-picker-1').timepicker('setTime', defaultStart);
-  $('#time-picker-2').timepicker('setTime', defaultEnd);
+  $('#time-picker-1').timepicker('setTime', times.minTime);
+  $('#time-picker-2').timepicker('setTime', times.maxTime);
 
   $('#time-picker-1').change(function() {
-    let minTime = moment($('#time-picker-1').timepicker('getTime', new Date())).format('HH:mm');
-    $('#calendar').fullCalendar('option', 'minTime', minTime);
+    let prev = times.minTime;
+    times.minTime = moment($('#time-picker-1').timepicker('getTime', new Date())).format('HH:mm');
+
+    if (invalidTimes(times.minTime, times.maxTime)) {
+      $('#time-picker-1').timepicker('setTime', prev);
+      times.minTime = prev;
+      alert("The start time must be earlier than the end time. Please re-select valid times.");
+    } else {
+      $('#calendar').fullCalendar('option', 'minTime', times.minTime);
+    }
   });
   $('#time-picker-2').change(function() {
-    let maxTime = moment($('#time-picker-2').timepicker('getTime', new Date())).format('HH:mm');
-    $('#calendar').fullCalendar('option', 'maxTime', maxTime);
+    let prev = times.maxTime;
+    times.maxTime = moment($('#time-picker-2').timepicker('getTime', new Date())).format('HH:mm');
+    if (invalidTimes(times.minTime, times.maxTime)) {
+      $('#time-picker-2').timepicker('setTime', prev);
+      times.maxTime = prev;
+      alert("The start time must be earlier than the end time. Please re-select valid times.");
+    } else {
+      $('#calendar').fullCalendar('option', 'maxTime', times.maxTime);
+    }
   });
 
 
 }
 
-function initDatepickers() {
-  let startDate = moment(new Date()).startOf('day');
-  let endDate = startDate.clone();
-  endDate.add(6, 'days');
-
+function initDatepickers(dates) {
   const picker1 = datepicker('#date-picker-1', {
     onSelect: (instance, date) => {
-      startDate = moment(date).startOf('day');
-      $('#calendar').fullCalendar('option', 'visibleRange', {
-        start: startDate,
-        end: endDate.clone().add(1, 'days')
-      });
-      $('#calendar').fullCalendar('option', 'firstDay', startDate.day());
+      var previous = dates.startDate;
+      dates.startDate = moment(date).startOf('day');
+      if (invalidDates(dates.startDate, dates.endDate)) {
+        picker1.setDate(previous, true);
+        dates.startDate = previous;
+        alert("The start date must be earlier than the end date. Please re-select valid dates.");
+      } else {
+        $('#calendar').fullCalendar('option', 'visibleRange', {
+          start: dates.startDate,
+          end: dates.endDate.clone().add(1, 'days')
+        });
+        $('#calendar').fullCalendar('option', 'firstDay', dates.startDate.day());
+      }
     }
   });
-  picker1.setDate(startDate, true);
+  picker1.setDate(dates.startDate, true);
 
   const picker2 = datepicker('#date-picker-2', {
     onSelect: (instance, date) => {
-      endDate = moment(date).startOf('day');
-      $('#calendar').fullCalendar('option', 'visibleRange', {
-        start: startDate,
-        end: endDate.clone().add(1, 'days')
-      });
+      var previous = dates.endDate;
+      dates.endDate = moment(date).startOf('day');
+      if (invalidDates(dates.startDate, dates.endDate)) {
+        picker2.setDate(previous, true);
+        dates.endDate = previous;
+        alert("The start date must be earlier than the end date. Please re-select valid dates.");
+      } else {
+        $('#calendar').fullCalendar('option', 'visibleRange', {
+          start: dates.startDate,
+          end: dates.endDate.clone().add(1, 'days')
+        });
+      }
     }
   });
-  picker2.setDate(endDate, true);
+  picker2.setDate(dates.endDate, true);
 }
 
-function inputEmpty(startDate, endDate, eventName) {
-  return startDate == "" || endDate == "" || eventName == "";
+function inputEmpty(eventName) {
+  return eventName == "";
 }
 
 function invalidDates(startDate, endDate) {
