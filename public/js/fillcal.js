@@ -335,6 +335,7 @@ function registerUser(groupCal) {
               size: groupCal.size + 1
             }
           });
+          initAvailabilityKey(groupCal.size + 1);
         } else {
           groupCal.removeUser(name);
         }
@@ -389,6 +390,7 @@ function switchSignIn() {
 
 function initAvailabilityKey(groupSize) {
   if (groupSize > 0) {
+    $("#availability-key").empty();
     var rainbow = new Rainbow();
     rainbow.setNumberRange(0, groupSize);
     rainbow.setSpectrum('#9eeaff', '#1c7c96');
@@ -396,10 +398,10 @@ function initAvailabilityKey(groupSize) {
     for (i=0; i<groupSize; i++) {
       $("#availability-key").append("<td bgcolor='#" + rainbow.colourAt(i) + "' class = 'key-cell' >&nbsp</td>");
     }
+    document.getElementById("all-available").innerHTML = `${groupSize}/${groupSize} Available`;
+    document.getElementById("no-available").innerHTML = `0/${groupSize} Available`;
   }
 
-  document.getElementById("all-available").innerHTML = `${groupSize}/${groupSize} Available`;
-  document.getElementById("no-available").innerHTML = `0/${groupSize} Available`;
 }
 
 // Parse gCal events to FullCalendar events
