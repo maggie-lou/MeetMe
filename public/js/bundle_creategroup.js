@@ -30114,8 +30114,8 @@ $(document).ready(function() {
   let maxTime = new Date();
   maxTime.setHours(17,0,0);
   var times = {
-    minTime: minTime,
-    maxTime: maxTime
+    minTime: moment(minTime).format("H:mm"),
+    maxTime: moment(maxTime).format("H:mm")
   };
 
   let startDate = moment(new Date()).startOf('day');
@@ -30142,8 +30142,8 @@ $(document).ready(function() {
           name: eventName,
           startDate: dates.startDate.toISOString(),
           endDate: dates.endDate.toISOString(),
-          minTime: moment(times.minTime).format("H:mm"),
-          maxTime: moment(times.maxTime).format("H:mm"),
+          minTime: times.minTime,
+          maxTime: times.maxTime
         }, function(data, status) {
           // Route to group calendar page
           window.location.assign('/' + data.link);
@@ -30155,8 +30155,8 @@ $(document).ready(function() {
 function initCalendar(dates, times) {
   $('#calendar').fullCalendar({
     defaultView: 'agenda',
-    minTime: moment(times.minTime).format("H:mm"),
-    maxTime: moment(times.maxTime).format("H:mm"),
+    minTime: times.minTime,
+    maxTime: times.maxTime,
     allDaySlot: false,
     contentHeight: 'auto',
     visibleRange: {
