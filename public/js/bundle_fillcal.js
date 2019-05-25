@@ -37500,6 +37500,8 @@ require('../../node_modules/bootstrap');
 var currentUserName;
 var currentUserID;
 
+var showAvailabilityLabels = false;
+
 $(document).ready(function() {
 
   // Set invitation link
@@ -37526,6 +37528,15 @@ $(document).ready(function() {
     });
     $('#sign-in-text').on('click', function() {
       switchRegister();
+    });
+    $('#show-labels').on('click', function() {
+      if($(this).is(':checked')){
+        showAvailabilityLabels = true;
+        renderGroupCal([], groupCalendar);
+      } else {
+        showAvailabilityLabels = false;
+        renderGroupCal([], groupCalendar);
+      }
     });
 
   });
@@ -37606,8 +37617,8 @@ function initCalendars(groupCalendar) {
     // Hovering on event will show names of busy people
     eventMouseover: function(calEvent, jsEvent, view) {
       if (!isIndividualEvent(calEvent)) {
-        let activeCal = groupCalendar.getActiveCal();
-        let busyPeople = activeCal[calEvent.start.format()].busyPeople;
+        let cal = groupCalendar.cal;
+        let busyPeople = cal[calEvent.start.format()].busyPeople;
         groupCalendar.getParticipants(function(allParticipants) {
           let freePeople = Utils.difference(allParticipants, busyPeople);
           let unavailable = busyPeople.length.toString() + "/" + allParticipants.length.toString();
@@ -38022,8 +38033,16 @@ function renderGroupCal(indCalEvents, groupCal) {
 
 // Callback function for renderGroupCal
 function renderGroupCalHelper(indCalEvents, groupCal) {
-  let groupCalEvents = groupCal.getEvents();
+  let groupCalEvents = Utils.clone(groupCal.getEvents());
   var combinedCal = groupCalEvents.concat(indCalEvents);
+
+  if (!showAvailabilityLabels) {
+    combinedCal = combinedCal.map(event => {
+      event.title = "";
+      return event;
+    });
+  }
+
   $('#calendar-group').fullCalendar( 'removeEvents');
   $('#calendar-group').fullCalendar( 'renderEvents', combinedCal, true);
 }
