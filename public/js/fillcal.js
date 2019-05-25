@@ -211,7 +211,7 @@ function saveCalendars(groupCal) {
   let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
   let indCalDict = serializeCalEvents(indCalEvents);
 
-  let combinedCalDict = combineIndGroupCalendars(indCalDict, groupCal.calCurrentUserRemoved);
+  let combinedCalDict = combineIndGroupCalendars(indCalDict, groupCal.cal);
 
   $.ajax({
     type: 'PATCH',
@@ -241,8 +241,7 @@ function saveCalendars(groupCal) {
         // );
 
         // Render combined group calendar
-        groupCal.updateFullCal(combinedCalDict);
-        groupCal.setActiveCalFull();
+        groupCal.updateCal(combinedCalDict);
         renderGroupCal([], groupCal);
       }
     });
@@ -252,6 +251,8 @@ function saveCalendars(groupCal) {
 // Combine dictionaries representing individual and group calendars into a single group calendar dictionary
 function combineIndGroupCalendars(indCalDict, groupCalDict) {
   let combinedCalDict = Utils.clone(groupCalDict);
+  removeUser(window.currentUserName, combinedCalDict);
+
   for (let key in indCalDict) {
     let timeslot;
     if (key in combinedCalDict) {
@@ -265,12 +266,37 @@ function combineIndGroupCalendars(indCalDict, groupCalDict) {
   return combinedCalDict;
 }
 
+function removeUser(username, groupCalDict) {
+  let timesToRemove = []
+
+  for (var time in groupCalDict) {
+    let calEvent = groupCalDict[time];
+    let busyPeople = calEvent.busyPeople;
+    if ($.inArray(username, busyPeople) != -1) {
+      if (busyPeople.length == 1) {
+        timesToRemove.push(time);
+      } else {
+        busyPeople = busyPeople.filter(function(name) {
+          let a= name != username;
+          return a;
+        });
+        calEvent.busyPeople = busyPeople;
+        groupCalDict[time] = calEvent;
+      }
+    }
+  }
+
+  for (var i in timesToRemove) {
+    let time = timesToRemove[i];
+    delete groupCalDict[time];
+  }
+}
+
 // Transform FullCalendar events into dictionary, where key is start time and value is calendar event
 // Split each event into 30 minute intervals
-function serializeCalEvents() {
+function serializeCalEvents(events) {
   let dict = {}
-  let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
-  indCalEvents.forEach(function(calEvent) {
+  events.forEach(function(calEvent) {
     // Split event into 30 minute timeslots
     let currentTime = moment(calEvent.start);
     while (currentTime.isBefore(moment(calEvent.end))) {
@@ -340,8 +366,7 @@ function registerUser(groupCal) {
             }
           });
           initAvailabilityKey(groupCal.size + 1);
-        } else {
-          groupCal.removeUser(name);
+          groupCal.size = groupCal.size + 1;
         }
       }).fail(function(data, textStatus) {
         if (wrongPassword(data.status)) {

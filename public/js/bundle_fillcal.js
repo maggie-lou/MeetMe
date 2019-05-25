@@ -37407,12 +37407,8 @@ function GroupCalendar(id, calendar, size, startDate, endDate, minTime, maxTime)
   this.minTime = minTime;
   this.maxTime = maxTime;
 
-  this.calFull = calendar; // Dictionary of start time to calendar event object for full group (including current user)
-  this.calCurrentUserRemoved = Utils.clone(calendar); // Dictionary of start time to calendar event object for  group excluding current user
-  this.fullCalActive = true;
-
-  this.eventsFull = null; // List of FullCalendar events, parsed from current calendar dictionary
-  this.eventsCurrentUserRemoved = null;
+  this.cal = calendar; // Dictionary of start time to calendar event object for full group (including current user)
+  this.events= null; // List of FullCalendar events, parsed from current calendar dictionary
 
   this.participants = null;
 }
@@ -37438,17 +37434,10 @@ GroupCalendar.prototype.getParticipants = function getParticipants(callback) {
 
 // Lazily computes and caches list of FullCalendar events for active group calendar
 GroupCalendar.prototype.getEvents = function getEvents() {
-  let events;
-  if (this.fullCalActive) {
-    if (this.eventsFull != null) return this.eventsFull;
-    events = deserializeCalendar(this.calFull, this.size);
-    this.eventsFull = events;
-  } else {
-    if (this.eventsCurrentUserRemoved != null) return this.eventsCurrentUserRemoved;
-    events = deserializeCalendar(this.calCurrentUserRemoved, this.size);
-    this.eventsCurrentUserRemoved = events;
-  }
-  return events;
+  if (this.events!= null) return this.events;
+
+  this.events = deserializeCalendar(this.cal, this.size);
+  return this.events;
 }
 
 // Transforms dictionary of calendar events to array of FullCalendar events
@@ -37477,56 +37466,9 @@ function deserializeCalendar(calDict, groupSize) {
 }
 
 
-// Removes given user's events from the group calendar.
-// Used so that the group calendar events can be displayed separately from the individual events.
-GroupCalendar.prototype.removeUser = function removeUser(username) {
-  let timesToRemove = []
-
-  for (var time in this.calCurrentUserRemoved) {
-    let calEvent = this.calCurrentUserRemoved[time];
-    let busyPeople = calEvent.busyPeople;
-    if ($.inArray(username, busyPeople) != -1) {
-      if (busyPeople.length == 1) {
-        timesToRemove.push(time);
-      } else {
-        busyPeople = busyPeople.filter(function(name) {
-          let a= name != username;
-          return a;
-        });
-        calEvent.busyPeople = busyPeople;
-        this.calCurrentUserRemoved[time] = calEvent;
-      }
-    }
-  }
-
-  for (var i in timesToRemove) {
-    let time = timesToRemove[i];
-    delete this.calCurrentUserRemoved[time];
-  }
-}
-
-GroupCalendar.prototype.updateFullCal = function updateFullCal(cal) {
-  this.calFull = cal;
-  this.eventsFull = null;
-}
-
-GroupCalendar.prototype.getActiveCal = function getActiveCal() {
-  if (this.fullCalActive) return this.calFull;
-  return this.calCurrentUserRemoved;
-}
-
-GroupCalendar.prototype.setActiveCalFull = function setActiveCalFull() {
-  if (!this.fullCalActive) {
-    this.fullCalActive = true;
-    this.size++; // Include current user in group size
-  }
-}
-
-GroupCalendar.prototype.setActiveCalPartial = function setActiveCalPartial() {
-  if (this.fullCalActive) {
-    this.fullCalActive = false;
-    this.size--; // Exclude current user from group size
-  }
+GroupCalendar.prototype.updateCal = function updateCal(cal) {
+  this.cal = cal;
+  this.events = null; // Clear cache
 }
 
 module.exports = GroupCalendar;
@@ -37759,7 +37701,7 @@ function saveCalendars(groupCal) {
   let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
   let indCalDict = serializeCalEvents(indCalEvents);
 
-  let combinedCalDict = combineIndGroupCalendars(indCalDict, groupCal.calCurrentUserRemoved);
+  let combinedCalDict = combineIndGroupCalendars(indCalDict, groupCal.cal);
 
   $.ajax({
     type: 'PATCH',
@@ -37789,8 +37731,7 @@ function saveCalendars(groupCal) {
         // );
 
         // Render combined group calendar
-        groupCal.updateFullCal(combinedCalDict);
-        groupCal.setActiveCalFull();
+        groupCal.updateCal(combinedCalDict);
         renderGroupCal([], groupCal);
       }
     });
@@ -37800,6 +37741,8 @@ function saveCalendars(groupCal) {
 // Combine dictionaries representing individual and group calendars into a single group calendar dictionary
 function combineIndGroupCalendars(indCalDict, groupCalDict) {
   let combinedCalDict = Utils.clone(groupCalDict);
+  removeUser(window.currentUserName, combinedCalDict);
+
   for (let key in indCalDict) {
     let timeslot;
     if (key in combinedCalDict) {
@@ -37813,12 +37756,37 @@ function combineIndGroupCalendars(indCalDict, groupCalDict) {
   return combinedCalDict;
 }
 
+function removeUser(username, groupCalDict) {
+  let timesToRemove = []
+
+  for (var time in groupCalDict) {
+    let calEvent = groupCalDict[time];
+    let busyPeople = calEvent.busyPeople;
+    if ($.inArray(username, busyPeople) != -1) {
+      if (busyPeople.length == 1) {
+        timesToRemove.push(time);
+      } else {
+        busyPeople = busyPeople.filter(function(name) {
+          let a= name != username;
+          return a;
+        });
+        calEvent.busyPeople = busyPeople;
+        groupCalDict[time] = calEvent;
+      }
+    }
+  }
+
+  for (var i in timesToRemove) {
+    let time = timesToRemove[i];
+    delete groupCalDict[time];
+  }
+}
+
 // Transform FullCalendar events into dictionary, where key is start time and value is calendar event
 // Split each event into 30 minute intervals
-function serializeCalEvents() {
+function serializeCalEvents(events) {
   let dict = {}
-  let indCalEvents = parseClientEvents($('#calendar-ind').fullCalendar('clientEvents'));
-  indCalEvents.forEach(function(calEvent) {
+  events.forEach(function(calEvent) {
     // Split event into 30 minute timeslots
     let currentTime = moment(calEvent.start);
     while (currentTime.isBefore(moment(calEvent.end))) {
@@ -37888,8 +37856,7 @@ function registerUser(groupCal) {
             }
           });
           initAvailabilityKey(groupCal.size + 1);
-        } else {
-          groupCal.removeUser(name);
+          groupCal.size = groupCal.size + 1;
         }
       }).fail(function(data, textStatus) {
         if (wrongPassword(data.status)) {
