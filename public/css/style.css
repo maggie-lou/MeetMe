@@ -1,6 +1,7 @@
 body {
   font-family: "Montserrat", serif;
   background-color: #F4EFDC;
+  font-size: small;
 }
 
 .vertical-container {
@@ -13,6 +14,7 @@ body {
   border: 0;
   display: flex;
   flex-direction: row;
+  max-height: 100%;
   height: 100%;
 }
 
@@ -24,8 +26,8 @@ body {
 .pane {
   background-color: white;
   margin:1em;
-  height: 90%;
-  padding: 2em;
+  max-height: 100%;
+  padding: 20px;
   border-radius: 6px;
   border: 1px solid #a09d9d;
   overflow-x: scroll;
@@ -36,14 +38,13 @@ body {
 }
 
 .title {
-  font-size: 2em;
   color: #36af23;
 }
 
 .logo {
   color: #55A848;
-  margin-left: 2em;
-  font-size: 2.5em;
+  margin: 0px 40px;
+  font-size: large;
   font-weight: bold;
 }
 
@@ -69,11 +70,9 @@ body {
     border-radius: 10px;
     color: white;
     height: 6%;
-    padding: 15px;
     font-weight: bold;
-    margin-top: 10px;
-    font-size: 1.3em;
     width: 25%;
+    text-align: center;
 }
 
 .inline {
@@ -133,4 +132,8 @@ body {
 
 #SpecificDates {
   font-family: monospace;
+}
+
+.fc-event, .fc-event-dot {
+  font-size: smaller !important;
 }

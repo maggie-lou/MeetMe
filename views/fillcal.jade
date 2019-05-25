@@ -15,14 +15,14 @@ block content
     .horizontal-container
       .pane.half-pane
         .vertical-container#ind-cal-pane
-          h1.title.inline Individual Calendar
+          h3.title.inline Individual Availability
           button.button.inline#authorize-button Sync Google Calendar
           button#signout-button Sign Out
-          h3#info Block out times you are unavailable to meet. Changes save automatically.
+          h5#info Block out times you are unavailable to meet. Changes save automatically.
           #calendar-ind
         .vertical-container#register-pane
-          h1.register-title#register Register
-          h1.register-title#sign-in Sign In
+          h3.register-title#register Register
+          h3.register-title#sign-in Sign In
           button#register-text Existing user? Sign in.
           button#sign-in-text New user? Register.
           input.input#inputUsername(type='text', placeholder='Name')
@@ -33,7 +33,7 @@ block content
           button.button#register-button Register
           button.button#sign-in-button Sign In
       .pane.half-pane#group-cal-pane
-        h1.title#group-cal-title Group Availability
+        h3.title#group-cal-title Group Availability
         span.inline#all-available
         table#availability-key.inline
           tr

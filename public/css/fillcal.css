@@ -5,7 +5,7 @@
 #share-box {
   height: 5%;
   box-sizing: border-box;
-  padding-top:15px;
+  padding-top:5px;
   overflow: hidden;
 }
 
@@ -17,7 +17,7 @@
 }
 
 #copy-button {
-  height: 30px;
+  height: 20px;
   margin-left: 2%;
   border-radius: 8px;
   padding: 0px 20px;
