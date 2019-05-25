@@ -37914,7 +37914,7 @@ function initAvailabilityKey(groupSize) {
     rainbow.setNumberRange(0, groupSize);
     rainbow.setSpectrum('#9eeaff', '#1c7c96');
     $("#availability-key").append("<td bgcolor= 'white' class = 'key-cell' >&nbsp</td>");
-    for (i=0; i<groupSize; i++) {
+    for (i=1; i<=groupSize; i++) {
       $("#availability-key").append("<td bgcolor='#" + rainbow.colourAt(i) + "' class = 'key-cell' >&nbsp</td>");
     }
     document.getElementById("all-available").innerHTML = `${groupSize}/${groupSize} Available`;
