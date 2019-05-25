@@ -38048,7 +38048,6 @@ function renderIndCal(indCalEvents, groupCal) {
 	var SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
 
 	var authorizeButton = document.getElementById('authorize-button');
-	var signoutButton = document.getElementById('signout-button');
 
 	function initOauth(groupCal) {
 	  gapi.load('client:auth2', function() {
@@ -38074,7 +38073,6 @@ function renderIndCal(indCalEvents, groupCal) {
       // Handle the initial sign-in state.
       updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get(), groupCal);
       authorizeButton.onclick = handleAuthClick;
-      signoutButton.onclick = handleSignoutClick;
 	  });
 	}
 
@@ -38087,7 +38085,6 @@ function renderIndCal(indCalEvents, groupCal) {
 function updateSigninStatus(isSignedIn, groupCal) {
   if (isSignedIn) {
     authorizeButton.style.display = 'none';
-    signoutButton.style.display = 'block';
     parseGCal(groupCal).then(function(event_list) {
       $('#calendar-ind').fullCalendar( 'removeEvents');
       $('#calendar-ind').fullCalendar( 'renderEvents', event_list, true);
@@ -38096,7 +38093,6 @@ function updateSigninStatus(isSignedIn, groupCal) {
     return true;
   } else {
     authorizeButton.style.display = 'block';
-    signoutButton.style.display = 'none';
     return false;
   }
 }
