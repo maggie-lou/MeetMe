@@ -51,7 +51,11 @@ app.listen(app.get('port'), function() {
   console.log('Express app listening on port ' + app.get('port'));
 });
 
-// Render calendar pages
- app.get('/:groupLink', function(req, res, next) {
+// Render pages
+app.get('/', function (req, res) {
+  res.render('creategroup', {});
+});
+
+app.get('/:groupLink', function(req, res, next) {
   res.render('fillcal', { groupLink: req.params.groupLink});
 });

@@ -60,12 +60,6 @@ router.get('/', function(req, res) {
 });
 
 
-router.get('/create', function(req, res) {
-  res.render('creategroup', {});
-});
-
-
-
 // Returns group given group link
 router.get('/link/:link', function(req, res) {
   console.log("/GET group/link/" + req.params.link);
