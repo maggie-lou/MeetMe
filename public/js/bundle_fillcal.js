@@ -37503,7 +37503,7 @@ var currentUserID;
 $(document).ready(function() {
 
   // Set invitation link
-  document.getElementById("link").innerHTML = "www.meetme.com/" + groupLink;
+  document.getElementById("link").innerHTML = "www.meetmecal.com/" + groupLink;
 
   getGroup(groupLink, function(group) { // groupLink defined in fillcal.jade script tag
     let groupCalendar = new GroupCalendar(group._id, JSON.parse(group.calendar), group.size, group.startDate, group.endDate, group.minTime, group.maxTime);
