@@ -95,3 +95,7 @@
 .show-labels {
   float:right;
 }
+
+#highlight-my-availability {
+  display: none;
+}

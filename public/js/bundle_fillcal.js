@@ -37501,6 +37501,7 @@ var currentUserName;
 var currentUserID;
 
 var showAvailabilityLabels = false;
+var highlightAvailability = false;
 
 $(document).ready(function() {
 
@@ -37535,6 +37536,15 @@ $(document).ready(function() {
         renderGroupCal([], groupCalendar);
       } else {
         showAvailabilityLabels = false;
+        renderGroupCal([], groupCalendar);
+      }
+    });
+    $('#highlight-availability').on('click', function() {
+      if($(this).is(':checked')){
+        highlightAvailability = true;
+        renderGroupCal([], groupCalendar);
+      } else {
+        highlightAvailability  = false;
         renderGroupCal([], groupCalendar);
       }
     });
@@ -37848,6 +37858,7 @@ function registerUser(groupCal) {
       }, function(data, status, xhr) {
         $('#register-pane').css({ 'display': 'none' });
         $('#ind-cal-pane').css({ 'display': 'inherit' });
+        $('#highlight-my-availability').css({ 'display': 'inherit' });
 
         // Save newly created user data to global variable
         window.currentUserID = data._id;
@@ -38036,12 +38047,18 @@ function renderGroupCalHelper(indCalEvents, groupCal) {
   let groupCalEvents = Utils.clone(groupCal.getEvents());
   var combinedCal = groupCalEvents.concat(indCalEvents);
 
-  if (!showAvailabilityLabels) {
-    combinedCal = combinedCal.map(event => {
+  combinedCal = combinedCal.map(event => {
+    if (!showAvailabilityLabels) {
       event.title = "";
-      return event;
-    });
-  }
+    }
+
+    let cal = groupCal.cal;
+    let busyPeople = cal[event.start].busyPeople;
+    if (highlightAvailability && busyPeople.includes(window.currentUserName)) {
+      event.borderColor = "black";
+    }
+    return event;
+  });
 
   $('#calendar-group').fullCalendar( 'removeEvents');
   $('#calendar-group').fullCalendar( 'renderEvents', combinedCal, true);
