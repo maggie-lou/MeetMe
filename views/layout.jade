@@ -9,6 +9,13 @@ html
     script(src='../node_modules/jquery/dist/jquery.min.js')
     script(src='../node_modules/moment/min/moment.min.js')
     script(src='../node_modules/fullcalendar/dist/fullcalendar.min.js')
+    script(async src="https://www.googletagmanager.com/gtag/js?id=UA-141363118-1")
     block extrascripts
   body
     block content
+    script.
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-141363118-1');
