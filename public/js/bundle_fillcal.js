@@ -38074,7 +38074,7 @@ function renderIndCal(indCalEvents, groupCal) {
 /**************** OAUTH *****************************/
 
 	// Client ID and API key from the Developer Console
-	var CLIENT_ID = '482233491751-ds1dm3a9mtd69mesprcthn470mjn6tq8.apps.googleusercontent.com';
+	var CLIENT_ID = '482233491751-sadruif6vnr3p5rhq7u55igkbkstejh1.apps.googleusercontent.com';
 
 	// Array of API discovery doc URLs for APIs used by the quickstart
 	var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
