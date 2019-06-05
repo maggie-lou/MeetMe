@@ -86,6 +86,7 @@
   font-size: 1em;
   width: auto;
   text-align: center;
+  background-color: #fb6565;
 }
 
 #info {
@@ -98,4 +99,8 @@
 
 #highlight-my-availability {
   display: none;
+}
+
+#ind-cal-title {
+  color: #fb6565;
 }

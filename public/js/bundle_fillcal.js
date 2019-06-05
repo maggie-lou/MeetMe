@@ -37503,6 +37503,8 @@ var currentUserID;
 var showAvailabilityLabels = false;
 var highlightAvailability = false;
 
+var indCalColor = "#fb6565";
+
 $(document).ready(function() {
 
   // Set invitation link
@@ -37563,7 +37565,7 @@ function initCalendars(groupCalendar) {
     editable: true,
     unselectAuto: false, // Clicking elsewhere won't cause current selection to be cleared
     displayEventTime : false,
-    eventColor: "#7bce6e",
+    eventColor: indCalColor,
     allDaySlot: false,
     visibleRange: {
       start: moment(groupCalendar.startDate).startOf("day"),
@@ -37679,7 +37681,7 @@ function initCalendars(groupCalendar) {
 }
 
 function isIndividualEvent(calEvent) {
-  return calEvent.color == "#7bce6e";
+  return calEvent.color == indCalColor;
 }
 
 function confirmExit() {
@@ -37832,7 +37834,7 @@ function deserializeIndCalEvents(calDict) {
     eventObj.title = timeslot.title;
     eventObj.start = timeslot.startTime;
     eventObj.end = timeslot.endTime;
-    eventObj.color = "#7bce6e";
+    eventObj.color = indCalColor;
 
     events.push(eventObj);
   }
@@ -38028,7 +38030,7 @@ function parseClientEvents(events) {
 
     eventObj.start = events[i].start._i;
     eventObj.end = events[i].end._i;
-    eventObj.color = "#7bce6e";
+    eventObj.color = indCalColor;
     parsedCal.push(eventObj);
   }
 
