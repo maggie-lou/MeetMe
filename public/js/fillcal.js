@@ -5,6 +5,7 @@ const Utils = require('../../helpers/utils');
 const moment = require('../../node_modules/moment');
 const fullCalendar = require('../../node_modules/fullcalendar');
 const Rainbow = require('../../node_modules/rainbowvis.js');
+const Touch = require('../../node_modules/jquery.ui.touch');
 require('../../node_modules/bootstrap');
 
 var currentUserName;
@@ -102,6 +103,11 @@ function initCalendars(groupCalendar) {
     // Editing size of pre-existing event will update group calendar
     eventResize: function(info) {
       saveCalendars(groupCalendar);
+    },
+
+    // Add touch support for mobile
+    eventRender: function(event, element) {
+      $(element).addTouch();
     }
   })
 
