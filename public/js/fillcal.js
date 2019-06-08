@@ -33,15 +33,6 @@ $(document).ready(function() {
     $('#register-button').on('click', function() {
       registerUser(groupCalendar);
     });
-    $('#sign-in-button').on('click', function() {
-      registerUser(groupCalendar);
-    });
-    $('#register-text').on('click', function() {
-      switchSignIn();
-    });
-    $('#sign-in-text').on('click', function() {
-      switchRegister();
-    });
     $('#show-labels').on('click', function() {
       if($(this).is(':checked')){
         showAvailabilityLabels = true;
@@ -419,26 +410,6 @@ function copy() {
   tempInput.select();
   document.execCommand('copy');
   tempInput.remove();
-}
-
-function switchRegister() {
-  document.getElementById('register').style.display = 'block';
-  document.getElementById('register-text').style.display = 'block';
-  document.getElementById('register-button').style.display = 'block';
-
-  document.getElementById('sign-in').style.display = 'none';
-  document.getElementById('sign-in-text').style.display = 'none';
-  document.getElementById('sign-in-button').style.display = 'none';
-}
-
-function switchSignIn() {
-  document.getElementById('register').style.display = 'none';
-  document.getElementById('register-text').style.display = 'none';
-  document.getElementById('register-button').style.display = 'none';
-
-  document.getElementById('sign-in').style.display = 'block';
-  document.getElementById('sign-in-text').style.display = 'block';
-  document.getElementById('sign-in-button').style.display = 'block';
 }
 
 function initAvailabilityKey(groupSize) {
