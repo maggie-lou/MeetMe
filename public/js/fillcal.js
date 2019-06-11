@@ -5,7 +5,6 @@ const Utils = require('../../helpers/utils');
 const moment = require('../../node_modules/moment');
 const fullCalendar = require('../../node_modules/fullcalendar');
 const Rainbow = require('../../node_modules/rainbowvis.js');
-const Touch = require('../../node_modules/jquery.ui.touch');
 require('../../node_modules/bootstrap');
 
 var currentUserName;
@@ -107,7 +106,7 @@ function initCalendars(groupCalendar) {
     },
 
     // On mobile, shorten delay to create new events
-    longPressDelay: 10,
+    longPressDelay: 300,
   })
 
   $('#calendar-group').fullCalendar({
