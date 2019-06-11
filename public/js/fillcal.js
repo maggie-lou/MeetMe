@@ -92,6 +92,7 @@ function initCalendars(groupCalendar) {
         true
       );
       saveCalendars(groupCalendar);
+      calInd.fullCalendar('unselect');
     },
 
     // Clicking on event will trigger event deletion prompt
@@ -105,10 +106,8 @@ function initCalendars(groupCalendar) {
       saveCalendars(groupCalendar);
     },
 
-    // Add touch support for mobile
-    eventRender: function(event, element) {
-      $(element).addTouch();
-    }
+    // On mobile, shorten delay to create new events
+    longPressDelay: 10,
   })
 
   $('#calendar-group').fullCalendar({
