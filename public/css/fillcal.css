@@ -2,8 +2,7 @@
   margin-top: 2px;
 }
 
-#share-box {
-  height: 5%;
+#event-details-box {
   box-sizing: border-box;
   padding-top:5px;
   overflow: hidden;
@@ -104,4 +103,8 @@
 
 #ind-cal-title {
   color: #fb6565;
+}
+
+#group-name {
+  font-weight: bolder;
 }

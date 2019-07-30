@@ -7,11 +7,14 @@ block content
   .vertical-container.page-content
     .popup#savedPopup
       <p>Your calendar has been saved!</p>
-    h1.logo MeetMe
-    .pane.horizontal-container#share-box
-      p.text.padded-text Invite Participants: 
-      p.text.padded-text#link 
-      button#copy-button Copy Link
+    h1.logo.inline MeetMe
+    .pane.vertical-container#event-details-box
+      .horizontal-container
+        p.text.padded-text Invite Participants: 
+        p.text.padded-text#link 
+        button#copy-button Copy Link
+      hr(width='100%')
+      p.text.padded-text#group-name 
     .horizontal-container
       .pane.half-pane
         .vertical-container#ind-cal-pane
