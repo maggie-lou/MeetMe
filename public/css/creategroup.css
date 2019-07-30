@@ -11,7 +11,7 @@
   margin: 0px 18px;
 }
 
-#name-input {
+#name-input, #description-input {
   width: 90%;
 }
 
@@ -19,3 +19,6 @@
   float: right;
 }
 
+#create-button {
+  margin-top: 10px;
+}

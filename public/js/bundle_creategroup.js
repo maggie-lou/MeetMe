@@ -30275,6 +30275,7 @@ $(document).ready(function() {
 
   document.getElementById("create-button").onclick = function() {
     var eventName = document.getElementById('name-input').value;
+    var eventDescription = document.getElementById('description-input').value;
 
     if (inputEmpty(eventName)) {
       alert("Please fill in an event name.");
@@ -30286,7 +30287,8 @@ $(document).ready(function() {
           startDate: dates.startDate.toISOString(),
           endDate: dates.endDate.toISOString(),
           minTime: times.minTime,
-          maxTime: times.maxTime
+          maxTime: times.maxTime,
+          description: eventDescription
         }, function(data, status) {
           // Route to group calendar page
           window.location.assign('/' + data.link);

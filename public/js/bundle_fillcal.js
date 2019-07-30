@@ -37655,6 +37655,7 @@ $(document).ready(function() {
 
   getGroup(groupLink, function(group) { // groupLink defined in fillcal.jade script tag
     document.getElementById("group-name").innerHTML = group.name;
+    document.getElementById("group-description").innerHTML = group.description;
 
     let groupCalendar = new GroupCalendar(group._id, JSON.parse(group.calendar), group.size, group.startDate, group.endDate, group.minTime, group.maxTime);
     initCalendars(groupCalendar);

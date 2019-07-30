@@ -10,6 +10,7 @@ var groupSchema = new Schema({
   maxTime: String,
 	link: { type: String, unique: true },
   calendar: String,
+  description: String,
 });
 
 var Groups = mongoose.model('Group', groupSchema);

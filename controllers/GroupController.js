@@ -12,6 +12,7 @@ router.post('/', function(req, res) {
     req.body.endDate,
     req.body.minTime,
     req.body.maxTime,
+    req.body.description,
     Utils.generateUniqueID(),
     function(response) {
       res.send(response);
@@ -19,13 +20,14 @@ router.post('/', function(req, res) {
   );
 });
 
-function saveGroup(name, startDate, endDate, minTime, maxTime, link, callback) {
+function saveGroup(name, startDate, endDate, minTime, maxTime, description, link, callback) {
   var newGroup = new Groups({
     name: name,
     startDate: startDate,
     endDate: endDate,
     minTime: minTime,
     maxTime: maxTime,
+    description: description,
     link: link,
     calendar: "{}",
     size: 0,
@@ -36,7 +38,7 @@ function saveGroup(name, startDate, endDate, minTime, maxTime, link, callback) {
       let nonUniqueLinkError = err.name == 'MongoError' && err.code === 11000;
       if (nonUniqueLinkError) {
         console.log("Non unique group link - regenerating link.");
-        saveGroup(name, startDate, endDate, Utils.generateUniqueID(), callback);
+        saveGroup(name, startDate, endDate, description, Utils.generateUniqueID(), callback);
         return;
       }
       console.log(err);
