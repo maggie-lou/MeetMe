@@ -80,12 +80,19 @@
   border-top: 1px solid #a09d9d;
 }
 
-#authorize-button {
+.ind-cal-button {
   float: right;
   font-size: 1em;
   width: auto;
   text-align: center;
+}
+
+#authorize-button {
   background-color: #fb6565;
+}
+
+#clear-button {
+  background-color: #d20000;
 }
 
 #info {

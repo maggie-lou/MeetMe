@@ -54,7 +54,10 @@ $(document).ready(function() {
         renderGroupCal([], groupCalendar);
       }
     });
-
+    $('#clear-button').on('click', function() {
+      $('#calendar-ind').fullCalendar('removeEvents');
+      saveCalendars(groupCalendar);
+    });
   });
 });
 
