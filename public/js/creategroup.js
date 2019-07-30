@@ -111,17 +111,19 @@ function initDatepickers(dates) {
     onSelect: (instance, date) => {
       var previous = dates.startDate;
       dates.startDate = moment(date).startOf('day');
+
       if (invalidDates(dates.startDate, dates.endDate)) {
-        picker1.setDate(previous, true);
-        dates.startDate = previous;
-        alert("The start date must be earlier than the end date. Please re-select valid dates.");
-      } else {
-        $('#calendar').fullCalendar('option', 'visibleRange', {
-          start: dates.startDate,
-          end: dates.endDate.clone().add(1, 'days')
-        });
-        $('#calendar').fullCalendar('option', 'firstDay', dates.startDate.day());
+        let eventDuration = Math.abs(previous.diff(dates.endDate, 'days'));
+        dates.endDate = dates.startDate.clone();
+        dates.endDate.add(eventDuration, 'days');
+        picker2.setDate(dates.endDate, true);
       }
+
+      $('#calendar').fullCalendar('option', 'visibleRange', {
+        start: dates.startDate,
+        end: dates.endDate.clone().add(1, 'days')
+      });
+      $('#calendar').fullCalendar('option', 'firstDay', dates.startDate.day());
     }
   });
   picker1.setDate(dates.startDate, true);
