@@ -41,11 +41,13 @@ var GroupController = require('./controllers/GroupController');
 var UserController = require('./controllers/UserController');
 var CalController = require('./controllers/CalController');
 var GroupCalEventController = require('./controllers/GroupCalEventController');
+var FeedbackController = require('./controllers/FeedbackController');
 
 app.use('/groups', GroupController);
 app.use('/users', UserController);
 app.use('/cal', CalController);
 app.use('/groupcalevent', GroupCalEventController);
+app.use('/feedback', FeedbackController);
 
 app.listen(app.get('port'), function() {
   console.log('Express app listening on port ' + app.get('port'));
@@ -54,6 +56,10 @@ app.listen(app.get('port'), function() {
 // Render pages
 app.get('/', function (req, res) {
   res.render('creategroup', {});
+});
+
+app.get('/feedback', function(req, res, next) {
+  res.render('feedback');
 });
 
 app.get('/:groupLink', function(req, res, next) {

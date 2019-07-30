@@ -10,9 +10,12 @@ html
     script(src='../node_modules/moment/min/moment.min.js')
     script(src='../node_modules/fullcalendar/dist/fullcalendar.min.js')
     script(async src="https://www.googletagmanager.com/gtag/js?id=UA-141363118-1")
+    script(src='../public/js/bundle_control.js')
     block extrascripts
   body
     block content
+    .footer
+      p#feedback-text Feedback or feature requests? Let me know here!
     script.
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}

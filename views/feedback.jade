@@ -1,0 +1,17 @@
+extends layout
+
+block extrascripts
+      link(rel='stylesheet', href='../public/css/feedback.css')
+
+block content
+  .vertical-container.page-content
+    .popup#savedPopup
+      <p>Your feedback has been submitted!</p>
+    h1.logo MeetMe
+    .pane.vertical-container#feedback-pane
+      h2.title Feedback or feature requests? Let me know here!
+      h4.title Thank you for using MeetMe!
+      input.input#feedback-input(type='text')
+      button.button#feedback-button Submit 
+
+  script(src='../public/js/bundle_feedback.js')
