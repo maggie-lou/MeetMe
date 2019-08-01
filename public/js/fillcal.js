@@ -414,10 +414,34 @@ function newUserCreated(statusCode) {
 }
 
 function copy() {
+  // Can only copy text from an input element, so copy link to input element
   var tempInput = document.createElement('input');
   document.body.appendChild(tempInput);
   tempInput.value = document.getElementById('link').innerHTML;
-  tempInput.select();
+
+  var isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
+
+  if (isiOSDevice) {
+    var editable = tempInput.contentEditable;
+    var readOnly = tempInput.readOnly;
+
+    tempInput.contentEditable = true;
+		tempInput.readOnly = false;
+
+		var range = document.createRange();
+		range.selectNodeContents(tempInput);
+
+		var selection = window.getSelection();
+		selection.removeAllRanges();
+		selection.addRange(range);
+
+		tempInput.setSelectionRange(0, 999999);
+		tempInput.contentEditable = editable;
+		tempInput.readOnly = readOnly;
+  } else {
+    tempInput.select();
+  }
+
   document.execCommand('copy');
   tempInput.remove();
 }
