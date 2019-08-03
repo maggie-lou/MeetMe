@@ -38125,7 +38125,6 @@ function parseGCal(groupCal) {
     'showDeleted': false,
     'singleEvents': true,
     'orderBy': 'startTime',
-    'maxResults': 50,
   }).then(function(response) {
     var events = response.result.items;
 
@@ -38137,13 +38136,12 @@ function parseGCal(groupCal) {
 
         var eventObj = {};
         eventObj.title = event.summary;
-          // All-day events from Gcal
-        if (event.start.dateTime == null) {
-          eventObj.allDay = true;
-          eventObj.start = event.start.date;
-          eventObj.end = event.end.date;
+        eventObj.allDay = false;
+
+        if (event.start.dateTime == null) { // Parse all day events from Gcal
+          eventObj.start = moment(event.start.date).startOf("day");
+          eventObj.end = moment(event.end.date).startOf("day");
         } else {
-          eventObj.allDay = false;
           eventObj.start = event.start.dateTime;
           eventObj.end = event.end.dateTime;
         }
