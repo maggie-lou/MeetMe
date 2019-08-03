@@ -4,47 +4,45 @@ block extrascripts
       link(rel='stylesheet', href='../public/css/fillcal.css')
 
 block content
-  .vertical-container.page-content
-    .popup#savedPopup
-      <p>Your calendar has been saved!</p>
-    h1.logo.inline MeetMe
-    .pane.vertical-container#event-details-box
-      .horizontal-container
-        p.text.padded-text Invite Participants:
-        p.text.padded-text#link
-        button#copy-button Copy Link
-      hr(width='100%')
-      p.text.padded-text#group-name
-      p.text.padded-text#group-description
+  .popup#savedPopup
+    <p>Your calendar has been saved!</p>
+  .pane.vertical-container#event-details-box
     .horizontal-container
-      .pane.half-pane
-        .vertical-container#ind-cal-pane
-          h3.title.inline#ind-cal-title My Schedule
-          button.button.inline.ind-cal-button#clear-button Clear Calendar
-          button.button.inline.ind-cal-button#authorize-button Sync Google Calendar
-          h5#info Block out times you are #[u unavailable] to meet. Changes save automatically.
-          #calendar-ind
-        .vertical-container#register-pane
-          h3.register-title#register Register for This Event
-          input.input#inputUsername(type='text', placeholder='Name')
-          br
-          input.input#inputPassword(type='text', placeholder='Password (Optional)')
-          br
-          br
-          button.button#register-button Register
-      .pane.half-pane#group-cal-pane
-        h3.title#group-cal-title Group Availability
-        span.inline#all-available
-        table#availability-key.inline
-          tr
-        span.inline#no-available
-        .show-labels.inline
-          span.inline Show Availability Numbers
-          input#show-labels.inline(type = 'checkbox')
-        .show-labels#highlight-my-availability.inline
-          span.inline Highlight My Availability
-          input#highlight-availability.inline(type = 'checkbox')
-        #calendar-group
+      p.text.padded-text Invite Participants:
+      p.text.padded-text#link
+      button#copy-button Copy Link
+    hr(width='100%')
+    p.text.padded-text#group-name
+    p.text.padded-text#group-description
+  .horizontal-container
+    .pane.half-pane
+      .vertical-container#ind-cal-pane
+        h3.title.inline#ind-cal-title My Schedule
+        button.button.inline.ind-cal-button#clear-button Clear Calendar
+        button.button.inline.ind-cal-button#authorize-button Sync Google Calendar
+        h5#info Block out times you are #[u unavailable] to meet. Changes save automatically.
+        #calendar-ind
+      .vertical-container#register-pane
+        h3.register-title#register Register for This Event
+        input.input#inputUsername(type='text', placeholder='Name')
+        br
+        input.input#inputPassword(type='text', placeholder='Password (Optional)')
+        br
+        br
+        button.button#register-button Register
+    .pane.half-pane#group-cal-pane
+      h3.title#group-cal-title Group Availability
+      span.inline#all-available
+      table#availability-key.inline
+        tr
+      span.inline#no-available
+      .show-labels.inline
+        span.inline Show Availability Numbers
+        input#show-labels.inline(type = 'checkbox')
+      .show-labels#highlight-my-availability.inline
+        span.inline Highlight My Availability
+        input#highlight-availability.inline(type = 'checkbox')
+      #calendar-group
 
   script.
     var groupLink = "#{groupLink}";

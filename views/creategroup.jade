@@ -4,29 +4,27 @@ block extrascripts
       link(rel='stylesheet', href='../public/css/creategroup.css')
 
 block content
-  .vertical-container.page-content
-    h1.logo MeetMe
-    .horizontal-container
-      .pane.half-pane#new-group-pane
-        h3.title Create New Event
-        hr
-        h4 What is the name of your event?
-        input.input#name-input(type='text')
-        h4 What are the potential dates for your event?
-        div.input-row
-          input.input.date-picker#date-picker-1(type = "text")
-          h4.intermediary-date-text to
-          input.input.date-picker#date-picker-2(type = "text")
-        h4 What are viable times for the event?
-        div.input-row
-          input.input.date-picker#time-picker-1(type = "text")
-          h4.intermediary-date-text to
-          input.input.date-picker#time-picker-2(type = "text")
-        h4 Any additional details to add?
-        input.input#description-input(type='text')
-        br
-        button.button#create-button Create
-      .pane.half-pane
-        #calendar
+  .horizontal-container
+    .pane.half-pane#new-group-pane
+      h3.title Create New Event
+      hr
+      h4 What is the name of your event?
+      input.input#name-input(type='text')
+      h4 What are the potential dates for your event?
+      div.input-row
+        input.input.date-picker#date-picker-1(type = "text")
+        h4.intermediary-date-text to
+        input.input.date-picker#date-picker-2(type = "text")
+      h4 What are viable times for the event?
+      div.input-row
+        input.input.date-picker#time-picker-1(type = "text")
+        h4.intermediary-date-text to
+        input.input.date-picker#time-picker-2(type = "text")
+      h4 Any additional details to add?
+      input.input#description-input(type='text')
+      br
+      button.button#create-button Create
+    .pane.half-pane
+      #calendar
 
   script(src='../public/js/bundle_creategroup.js')

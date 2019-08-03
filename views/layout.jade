@@ -13,7 +13,9 @@ html
     script(src='../public/js/bundle_control.js')
     block extrascripts
   body
-    block content
+    .vertical-container.page-content
+      h1#logo.inline MeetMe
+      block content
     .footer
       p#feedback-text Feedback or feature requests? Let me know here!
     script.

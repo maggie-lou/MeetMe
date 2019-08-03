@@ -41,11 +41,15 @@ body {
   color: #36af23;
 }
 
-.logo {
+#logo {
   color: #55A848;
   margin: 0px 40px;
   font-size: large;
   font-weight: bold;
+}
+
+#logo:hover {
+  cursor: pointer;
 }
 
 .page-content {
@@ -152,4 +156,5 @@ body {
 
 #feedback-text:hover {
   color: #d7d7d7;
+  cursor: pointer;
 }
