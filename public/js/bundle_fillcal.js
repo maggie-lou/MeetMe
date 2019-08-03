@@ -37653,6 +37653,11 @@ $(document).ready(function() {
   // Set invitation link
   document.getElementById("link").innerHTML = "www.meetmecal.com/" + groupLink;
 
+  // Clicking away from calendar clears tooltip
+  $(document).click(function() {
+    hideAvailabilityTooltip();
+  });
+
   getGroup(groupLink, function(group) { // groupLink defined in fillcal.jade script tag
     document.getElementById("group-name").innerHTML = group.name;
     document.getElementById("group-description").innerHTML = group.description;
@@ -37772,52 +37777,23 @@ function initCalendars(groupCalendar) {
 
     // Hovering on event will show names of busy people
     eventMouseover: function(calEvent, jsEvent, view) {
-      if (!isIndividualEvent(calEvent)) {
-        let cal = groupCalendar.cal;
-        let busyPeople = cal[calEvent.start.format()].busyPeople;
-        groupCalendar.getParticipants(function(allParticipants) {
-          let freePeople = Utils.difference(allParticipants, busyPeople);
-          let unavailable = busyPeople.length.toString() + "/" + allParticipants.length.toString();
-          var tooltip =
-            `<div class="tooltipevent">
-             <div class="tooltip-header">
-              <p class = "inline" id = "time">${moment(calEvent.start).format('h:mm')} - ${moment(calEvent.end).format('h:mm')}</p>
-              <p class = "inline" id = "per-unavailable">${unavailable} Unavailable</p>
-            </div>
-            <div class = "tooltip-content">
-                <div class="column">
-                <p> Unavailable </p>
-                <div id = "unavailable">
-                </div>
-              </div>
-              <div class="column">
-                <p> Available </p>
-                <div id = "available">
-                </div>
-              </div>
-            </div>
-          </div>`;
-
-          var $tooltip = $(tooltip).appendTo('body');
-          document.getElementById('unavailable').appendChild(Utils.makeUL(busyPeople));
-          document.getElementById('available').appendChild(Utils.makeUL(freePeople));
-
-          $(this).mouseover(function(e) {
-            $(this).css('z-index', 10000);
-            $tooltip.fadeIn('500');
-            $tooltip.fadeTo('10', 1.9);
-          }).mousemove(function(e) {
-            $tooltip.css('top', e.pageY + 10);
-            $tooltip.css('left', e.pageX + 20);
-          });
-        });
-      }
+      showAvailabilityTooltip(groupCalendar, calEvent, jsEvent);
     },
 
     // Remove tooltip when hovering ends
     eventMouseout: function(calEvent, jsEvent) {
-      $(this).css('z-index', 8);
-      $('.tooltipevent').remove();
+      hideAvailabilityTooltip();
+    },
+
+    // On mobile, show tooltip on click
+    eventClick: function(calEvent, jsEvent, view) {
+      if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {
+        // Default behavior for rest of page is removing availability tooltip on click
+        jsEvent.preventDefault();
+        jsEvent.stopPropagation();
+
+        showAvailabilityTooltip(groupCalendar, calEvent, jsEvent);
+      }
     },
   })
 
@@ -38077,6 +38053,51 @@ function copy() {
 
   document.execCommand('copy');
   tempInput.remove();
+}
+
+function showAvailabilityTooltip(groupCalendar, calEvent, jsEvent) {
+  // Clear previous data
+  hideAvailabilityTooltip();
+
+  let cal = groupCalendar.cal;
+  let busyPeople = cal[calEvent.start.format()].busyPeople;
+  groupCalendar.getParticipants(function(allParticipants) {
+    let freePeople = Utils.difference(allParticipants, busyPeople);
+    let unavailable = busyPeople.length.toString() + "/" + allParticipants.length.toString();
+    var tooltip =
+      `<div class="tooltipevent">
+             <div class="tooltip-header">
+              <p class = "inline" id = "time">${moment(calEvent.start).format('h:mm')} - ${moment(calEvent.end).format('h:mm')}</p>
+              <p class = "inline" id = "per-unavailable">${unavailable} Unavailable</p>
+            </div>
+            <div class = "tooltip-content">
+                <div class="column">
+                <p> Unavailable </p>
+                <div id = "unavailable">
+                </div>
+              </div>
+              <div class="column">
+                <p> Available </p>
+                <div id = "available">
+                </div>
+              </div>
+            </div>
+          </div>`;
+
+    var $tooltip = $(tooltip).appendTo('body');
+    document.getElementById('unavailable').appendChild(Utils.makeUL(busyPeople));
+    document.getElementById('available').appendChild(Utils.makeUL(freePeople));
+
+    $(this).css('z-index', 10000);
+    $tooltip.fadeIn('500');
+    $tooltip.fadeTo('10', 1.9);
+    $tooltip.css('top', jsEvent.pageY + 10);
+    $tooltip.css('left', jsEvent.pageX + 20);
+  });
+}
+
+function hideAvailabilityTooltip() {
+  $('.tooltipevent').remove();
 }
 
 function initAvailabilityKey(groupSize) {
